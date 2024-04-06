@@ -1,4 +1,5 @@
-.sky-img {
-  height: 50%;
-  width: 60%;
+div {
+  display: flex;
+  justify-content: center;
+  padding-top: 5em;
 }

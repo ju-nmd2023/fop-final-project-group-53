@@ -7,10 +7,11 @@ function preload() {
   //spriteStatic = loadImage("images/flintStartPosition.png");
 }
 function setup() {
-  createCanvas(400, 400);
-  //frameRate(30);
-  mySprite = createSprite(200, 200, 20, 20);
-  mySprite.shapeColor = [0, 0, 200];
+  const canvas = createCanvas(800, 600);
+  canvas.parent("sketch-holder"); //move the canvas so it's inside our <div id="sketch-holder">
+  frameRate(30);
+  //mySprite = createSprite(200, 200, 20, 20);
+  //mySprite.shapeColor = [0, 0, 200];
   //friction = 0.03;
   // mySprite.onMousePressed = function () {
   // mySprite.rotationSpeed = 1;
