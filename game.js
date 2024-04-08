@@ -1,17 +1,26 @@
-function setup() {
-  createCanvas(400, 400);
-  stroke();
-  frameRate(30);
+let character;
+let spriteStatic;
+
+function preload() {
+  img = loadImage("images/backgroundImg.jpg");
+  //spriteStatic = loadImage("images/flintStartPosition.png");
 }
-let x = 0;
-let y = 0;
+function setup() {
+  const canvas = createCanvas(800, 600);
+  canvas.parent("sketch-holder"); //move the canvas so it's inside our <div id="sketch-holder">
+  frameRate(30);
+  //character = new Sprite();
+  //character.diameter = 50;
+  //friction = 0.03;
+  // character.onMousePressed = function () {
+  // character.rotationSpeed = 1;
+  //};
 
-function scenery() {
-  //sky
-  let backgroundImage = document.getElementById("skyImage");
-  skyImage.setAttribute("src", "/images/backgroundImg.jpg");
+  //character.addImage(spriteStatic);
+  // character.scale = 0.2;
+}
 
-  //bridge
-  fill(20, 20, 20);
-  rect(0, 100, 400, 50);
+function draw() {
+  background(img);
+  //drawSprites();
 }

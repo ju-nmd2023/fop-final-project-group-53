@@ -1,12 +1,5 @@
-.sky-img {
-  position: absolute;
-  top:50%;
-  left:50%;
-  transform: translate(-50%, -50%);
-  width: 60%;
-
-}
-.sky-img {
-  max-width: 100%;
-  max-height: 100%;
+div {
+  display: flex;
+  justify-content: center;
+  padding-top: 5em;
 }
