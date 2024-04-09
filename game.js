@@ -7,6 +7,7 @@ window.addEventListener("load", function () {
   canvas.height = 1500;
   let logs = [];
   let coins = [];
+  let score = 0;
 
   class inputHandler {
     constructor() {
@@ -71,8 +72,14 @@ window.addEventListener("load", function () {
       this.weight = 1;
     }
     draw(context) {
-      //context.fillStyle = "white";
-      //context.fillRect(this.x, this.y, this.width, this.height);
+      context.strokeStyle = "white";
+      context.strokeRect(
+        this.x + 130,
+        this.y + 40,
+        this.width - 250,
+        this.height - 40
+      ); //box around player to easily detect collision
+
       context.drawImage(
         this.image,
         this.frameX * this.width,
@@ -147,6 +154,9 @@ window.addEventListener("load", function () {
       this.markedForDeletion = false;
     }
     draw(context) {
+      context.strokeStyle = "white";
+      context.strokeRect(this.x, this.y, this.width - 430, this.height - 430); //box around meatballs to easily detect collision
+
       context.drawImage(
         this.image,
         this.frameX * this.width,
@@ -159,9 +169,13 @@ window.addEventListener("load", function () {
         this.height
       );
     }
+
     update(deltaTime) {
       this.y += this.speed;
-      // if (this.x < 0 - this.width) this.markedForDeletion = true;
+      if (this.y > 2000 - this.width) {
+        this.markedForDeletion = true;
+        score++;
+      }
     }
   }
 
@@ -240,6 +254,12 @@ window.addEventListener("load", function () {
     logs = logs.filter((log) => !log.markedForDeletion); //all logs are tested and checked, if the markedfordeletion property is false. Only the amount of logs in picture are counted in console.log
   }
 
+  function displayStatusText(context) {
+    context.fillStyle = "black";
+    context.font = "40px Times New Roman";
+    context.fillText("SCORE: " + score, 40, 70);
+  }
+
   const input = new inputHandler();
   const player = new Player(canvas.width, canvas.height);
   const background = new Background(canvas.width, canvas.height);
@@ -265,6 +285,7 @@ window.addEventListener("load", function () {
     handleCoins(deltaTime);
     log.update(deltaTime);
     handleLogs(deltaTime);
+    displayStatusText(ctx);
     requestAnimationFrame(animate);
   }
   animate(0);
