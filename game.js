@@ -8,6 +8,7 @@ window.addEventListener("load", function () {
   let logs = [];
   let coins = [];
   let score = 0;
+  let gameOver = false;
 
   class inputHandler {
     constructor() {
@@ -92,7 +93,16 @@ window.addEventListener("load", function () {
         this.height
       );
     }
-    update(input, deltaTime) {
+    update(input, deltaTime, logs) {
+      // collision detection
+      logs.forEach((logs) => {
+        const dx = this.x - log.x;
+        const dy = this.y - log.y; // dx and dy givs us the center point of the two
+        const distance = Math.sqrt(dx * dx + dy * dy); //the distance between those center points
+        if (distance < log.width / 2 + this.width / 2) {
+          gameOver = true;
+        }
+      });
       //sprite animation
       if (this.frameTimer > this.frameInterval) {
         if (this.frameX >= this.maxFrame) this.frameX = 0;
@@ -212,6 +222,13 @@ window.addEventListener("load", function () {
       this.markedForDeletion = false;
     }
     draw(context) {
+      context.strokeStyle = "black";
+      context.strokeRect(
+        this.x + 90,
+        this.y + 80,
+        this.width - 300,
+        this.height - 200
+      ); //box around logs to easily detect collision
       context.drawImage(
         this.image,
         this.frameX * this.width,
@@ -258,6 +275,11 @@ window.addEventListener("load", function () {
     context.fillStyle = "black";
     context.font = "40px Times New Roman";
     context.fillText("SCORE: " + score, 40, 70);
+    if (gameOver) {
+      context.fillStyle = "black";
+      context.font = "40px Times New Roman";
+      context.fillText("GAME OVER", canvas.width / 2, canvas.height / 2);
+    }
   }
 
   const input = new inputHandler();
@@ -281,12 +303,12 @@ window.addEventListener("load", function () {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     background.draw(ctx);
     player.draw(ctx);
-    player.update(input, deltaTime);
+    player.update(input, deltaTime, logs);
     handleCoins(deltaTime);
     log.update(deltaTime);
     handleLogs(deltaTime);
     displayStatusText(ctx);
-    requestAnimationFrame(animate);
+    if (!gameOver) requestAnimationFrame(animate); //"!gameOver" means when game over is false
   }
   animate(0);
 });
