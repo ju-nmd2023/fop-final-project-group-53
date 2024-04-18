@@ -1,4 +1,4 @@
-//Followed this tutorial to learn this code https://www.youtube.com/watch?v=7JtLHJbm0kA&t=1675s
+//Code for sprite animation, collision with logs and basic falling meatball https://www.youtube.com/watch?v=7JtLHJbm0kA&t=1675s
 
 window.addEventListener("load", function () {
   const canvas = document.getElementById("canvas1");
@@ -73,13 +73,13 @@ window.addEventListener("load", function () {
       this.weight = 1;
     }
     draw(context) {
-      context.strokeStyle = "white";
+      /*context.strokeStyle = "white";
       context.strokeRect(
         this.x + 130,
         this.y + 40,
         this.width - 250,
         this.height - 40
-      ); //box around player to easily detect collision
+      );*/ //box around player to easily detect collision
 
       context.drawImage(
         this.image,
@@ -95,12 +95,20 @@ window.addEventListener("load", function () {
     }
     update(input, deltaTime, logs) {
       // collision detection
-      logs.forEach((logs) => {
-        const dx = this.x - log.x;
-        const dy = this.y - log.y; // dx and dy givs us the center point of the two
+      logs.forEach((log) => {
+        const dx =
+          this.x +
+          130 +
+          (this.width - 250) / 2 -
+          (log.x + 90 + (log.width - 300) / 2);
+        const dy =
+          this.y +
+          100 +
+          (this.height - 40) / 2 -
+          (log.y + 80 + (log.height - 200) / 2); // dx and dy givs us the center point of the two
         const distance = Math.sqrt(dx * dx + dy * dy); //the distance between those center points
-        if (distance < log.width / 2 + this.width / 2) {
-          gameOver = true;
+        if (distance < (log.width - 300) / 2 + (this.width - 250) / 2) {
+          // gameOver = true;
         }
       });
       //sprite animation
@@ -157,7 +165,7 @@ window.addEventListener("load", function () {
       this.width = 500;
       this.height = 500;
       this.image = document.getElementById("meatballImage");
-      this.x = 700;
+      this.x = Math.floor(Math.random() * 2000);
       this.y = 0;
       this.frameX = 0;
       this.speed = 8;
@@ -185,6 +193,10 @@ window.addEventListener("load", function () {
       if (this.y > 2000 - this.width) {
         this.markedForDeletion = true;
         score++;
+      }
+
+      if (this.y > 1160) {
+        //gameOver = true;
       }
     }
   }
@@ -222,13 +234,13 @@ window.addEventListener("load", function () {
       this.markedForDeletion = false;
     }
     draw(context) {
-      context.strokeStyle = "black";
+      /*context.strokeStyle = "black";
       context.strokeRect(
         this.x + 90,
         this.y + 80,
         this.width - 300,
         this.height - 200
-      ); //box around logs to easily detect collision
+      );*/ //box around logs to easily detect collision
       context.drawImage(
         this.image,
         this.frameX * this.width,
@@ -277,8 +289,8 @@ window.addEventListener("load", function () {
     context.fillText("SCORE: " + score, 40, 70);
     if (gameOver) {
       context.fillStyle = "black";
-      context.font = "40px Times New Roman";
-      context.fillText("GAME OVER", canvas.width / 2, canvas.height / 2);
+      context.font = "80px Times New Roman";
+      context.fillText("GAME OVER", canvas.width / 2 - 240, canvas.height / 2);
     }
   }
 
@@ -308,7 +320,7 @@ window.addEventListener("load", function () {
     log.update(deltaTime);
     handleLogs(deltaTime);
     displayStatusText(ctx);
-    if (!gameOver) requestAnimationFrame(animate); //"!gameOver" means when game over is false
+    if (!gameOver) requestAnimationFrame(animate); //Game stops when collision is detected.  "!gameOver" means when game over is false.
   }
   animate(0);
 });
