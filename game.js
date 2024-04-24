@@ -73,13 +73,13 @@ window.addEventListener("load", function () {
       this.weight = 1;
     }
     draw(context) {
-      /*context.strokeStyle = "white";
+      context.strokeStyle = "black";
       context.strokeRect(
         this.x + 130,
         this.y + 40,
         this.width - 250,
         this.height - 40
-      );*/ //box around player to easily detect collision
+      ); //box around player to easily detect collision
 
       context.drawImage(
         this.image,
@@ -111,6 +111,7 @@ window.addEventListener("load", function () {
           // gameOver = true;
         }
       });
+
       //sprite animation
       if (this.frameTimer > this.frameInterval) {
         if (this.frameX >= this.maxFrame) this.frameX = 0;
@@ -153,6 +154,7 @@ window.addEventListener("load", function () {
       if (this.y > this.gameHeight - this.height)
         this.y = this.gameHeight - this.height;
     }
+
     onGround() {
       return this.y >= this.gameHeight - this.height;
     }
@@ -172,7 +174,7 @@ window.addEventListener("load", function () {
       this.markedForDeletion = false;
     }
     draw(context) {
-      context.strokeStyle = "white";
+      context.strokeStyle = "black";
       context.strokeRect(this.x, this.y, this.width - 430, this.height - 430); //box around meatballs to easily detect collision
 
       context.drawImage(
@@ -190,11 +192,28 @@ window.addEventListener("load", function () {
 
     update(deltaTime) {
       this.y += this.speed;
-      if (this.y > 2000 - this.width) {
+      /*if (this.y > 2000 - this.width) {
         this.markedForDeletion = true;
         score++;
-      }
-
+      }*/
+      // collecting coins (meatballs)
+      coins.forEach((coin) => {
+        const dx =
+          player.x +
+          130 +
+          (player.width - 250) / 2 -
+          (this.x + 90 + (this.width - 300) / 2);
+        const dy =
+          player.y +
+          100 +
+          (player.height - 40) / 2 -
+          (this.y + 80 + (this.height - 200) / 2); // dx and dy givs us the center point of the two
+        const distance = Math.sqrt(dx * dx + dy * dy); //the distance between those center points
+        if (distance < (this.height - 300) / 2 + (player.height - 250) / 2) {
+          this.markedForDeletion = true;
+          score++;
+        }
+      });
       if (this.y > 1160) {
         //gameOver = true;
       }
