@@ -10,6 +10,12 @@ window.addEventListener("load", function () {
   let score = 0;
   let gameOver = false;
 
+  function StartScreen() {
+    document.getElementById("startScreenImage");
+  }
+
+  StartScreen();
+
   class inputHandler {
     constructor() {
       this.keys = [];
@@ -197,19 +203,20 @@ window.addEventListener("load", function () {
         score++;
       }*/
       // collecting coins (meatballs)
+
       coins.forEach((coin) => {
         const dx =
           player.x +
           130 +
           (player.width - 250) / 2 -
-          (this.x + 90 + (this.width - 300) / 2);
+          (this.x + (this.width - 430) / 2);
         const dy =
           player.y +
-          100 +
+          40 +
           (player.height - 40) / 2 -
-          (this.y + 80 + (this.height - 200) / 2); // dx and dy givs us the center point of the two
+          (this.y + (this.height - 430) / 2); // dx and dy givs us the center point of the two
         const distance = Math.sqrt(dx * dx + dy * dy); //the distance between those center points
-        if (distance < (this.height - 300) / 2 + (player.height - 250) / 2) {
+        if (distance < (this.height - 430) / 2 + (player.height - 40) / 2) {
           this.markedForDeletion = true;
           score++;
         }
@@ -341,5 +348,5 @@ window.addEventListener("load", function () {
     displayStatusText(ctx);
     if (!gameOver) requestAnimationFrame(animate); //Game stops when collision is detected.  "!gameOver" means when game over is false.
   }
-  animate(0);
+  animate(0); //this starts the animation loop
 });
