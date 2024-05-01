@@ -350,3 +350,10 @@ window.addEventListener("load", function () {
   }
   animate(0); //this starts the animation loop
 });
+
+//play button
+function start() {
+  alert("Button clicked!");
+}
+
+document.getElementById("playButton").addEventListener("click", play);
