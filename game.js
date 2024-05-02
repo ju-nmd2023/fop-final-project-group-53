@@ -348,10 +348,3 @@ window.addEventListener("load", function () {
 });
 
 //play button
-function start() {
-  alert("Button clicked!");
-}
-
-document.getElementById("playButton").addEventListener("click", play);
-
-
