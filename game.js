@@ -346,5 +346,3 @@ window.addEventListener("load", function () {
   }
   animate(0); //this starts the animation loop
 });
-
-//play button
