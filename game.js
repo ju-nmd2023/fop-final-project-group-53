@@ -79,13 +79,13 @@ window.addEventListener("load", function () {
       this.weight = 1;
     }
     draw(context) {
-      context.strokeStyle = "black";
+      /*context.strokeStyle = "black";
       context.strokeRect(
         this.x + 130,
         this.y + 40,
         this.width - 250,
         this.height - 40
-      ); //box around player to easily detect collision
+      );*/ //box around player to easily detect collision
 
       context.drawImage(
         this.image,
@@ -114,7 +114,7 @@ window.addEventListener("load", function () {
           (log.y + 80 + (log.height - 200) / 2); // dx and dy givs us the center point of the two
         const distance = Math.sqrt(dx * dx + dy * dy); //the distance between those center points
         if (distance < (log.width - 300) / 2 + (this.width - 250) / 2) {
-          // gameOver = true;
+          gameOver = true;
         }
       });
 
@@ -129,10 +129,10 @@ window.addEventListener("load", function () {
 
       //controls
       if (input.keys.indexOf("ArrowRight") > -1) {
-        this.speed = 10;
+        this.speed = 15;
         this.frameY = 0;
       } else if (input.keys.indexOf("ArrowLeft") > -1) {
-        this.speed = -10;
+        this.speed = -15;
         this.frameY = 1;
       } else if (input.keys.indexOf("ArrowUp") > -1 && this.onGround()) {
         this.vy -= 24; //velocity on 20, meaning that when jumping up the speed goes from 20->0 and when he falls down again it goes from 0->20
@@ -180,9 +180,9 @@ window.addEventListener("load", function () {
       this.markedForDeletion = false;
     }
     draw(context) {
-      context.strokeStyle = "black";
+      /*context.strokeStyle = "black";
       context.strokeRect(this.x, this.y, this.width - 430, this.height - 430); //box around meatballs to easily detect collision
-
+*/
       context.drawImage(
         this.image,
         this.frameX * this.width,
@@ -198,12 +198,8 @@ window.addEventListener("load", function () {
 
     update(deltaTime) {
       this.y += this.speed;
-      /*if (this.y > 2000 - this.width) {
-        this.markedForDeletion = true;
-        score++;
-      }*/
-      // collecting coins (meatballs)
 
+      // collecting coins (meatballs)
       coins.forEach((coin) => {
         const dx =
           player.x +
@@ -222,7 +218,7 @@ window.addEventListener("load", function () {
         }
       });
       if (this.y > 1160) {
-        //gameOver = true;
+        gameOver = true;
       }
     }
   }
@@ -260,13 +256,13 @@ window.addEventListener("load", function () {
       this.markedForDeletion = false;
     }
     draw(context) {
-      /*context.strokeStyle = "black";
+      /* context.strokeStyle = "black";
       context.strokeRect(
         this.x + 90,
         this.y + 80,
         this.width - 300,
         this.height - 200
-      );*/ //box around logs to easily detect collision
+      ); */ //box around logs to easily detect collision
       context.drawImage(
         this.image,
         this.frameX * this.width,
@@ -289,7 +285,7 @@ window.addEventListener("load", function () {
         this.frameTimer += deltaTime;
       }
       this.x += this.speed;
-      if (this.x > 2400 - this.width) this.markedForDeletion = true;
+      //if (this.x > 2400 - this.width) this.markedForDeletion = true;
     }
   }
 
