@@ -24,7 +24,7 @@ function setup() {
   frameRate(30);
   startScreen();
   textFont("Times New Roman");
-  player = new Player(canvasWidth, canvasHeight); //creates player
+ const player = new Player(gameWidth, gameHeight); //creates player
 }
 
 function startScreen() {
@@ -69,13 +69,13 @@ class Player {
     this.fps = 20;
     this.frameTimer = 5;
     this.frameInterval = 1000 / this.fps;
-    this.speed = 0;
+    this.speed = 1;
     this.vy = 0;
     this.weight = 1;
   }
 
   draw() {
-    //sprite image by https://p5js.org/reference/#/p5/image
+    //create sprite image by https://p5js.org/reference/#/p5/image
     image(
       img,
       this.x + 250,
@@ -87,52 +87,25 @@ class Player {
       this.imgWidht,
       this.imgHeight
     ); //draws the player
-    //this.frameX = (this.frameX + 1) % this.maxFrame;
+    push();
+    fill(255);
+    rect(this.x, this.y, 50, 50);
+
+    pop();
   }
 
   update() {
     //millis() returns the number of milliseconds since the sketch started.
-    if (millis() - this.frameTimer > this.frameInterval) {
+    /*if (millis() - this.frameTimer > this.frameInterval) {
       this.frameX = (this.frameX + 1) % this.maxFrame;
       this.frameTimer = millis(); // Reset the frame timer
-    }
+    }*/
 
-    //controls
-    if (keyCode == RIGHT_ARROW) {
-      this.x += this.speed;
-      this.frameY = 0;
-    }
-    if (keyCode == LEFT_ARROW) {
-      this.x -= this.speed;
-      this.frameY = 1;
-    }
-    if (keyCode == UP_ARROW && this.onGround()) {
-      this.vy -= 14; //velocity on 20, meaning that when jumping up the speed goes from 20->0 and when he falls down again it goes from 0->20
-      this.frameY = 2;
-      this.maxFrame = 7;
-    } else {
-      this.x = 0;
-    }
-    //horisontal movement - character cant move outside canvas
-    if (this.x < -80) this.x = -80;
-    else if (this.x > this.gameWidth - this.width + 80)
-      this.x = this.gameWidth - this.width + 80;
-    //vertical movement - velocity when jumping and telling which sprite to use.
-    this.y += this.vy;
-    if (!this.onGround()) {
-      this.vy += this.weight;
-      this.maxFrame = 6;
-      //this.frameY = 0;
-    } else {
-      this.vy = 0;
-      this.maxFrame = 9;
-      //this.frameY = 2;
-    }
-    if (this.y > this.gameHeight - this.imgHeight)
-      this.y = this.gameHeight - this.imgHeight;
-  }
-  onGround() {
-    return this.y >= this.gameHeight - this.imgHeight;
+    //placement
+    //let placement = this.speed * deltatime;
+    //movement
+    //this.x+= placement;
+    
   }
 }
 
@@ -141,8 +114,8 @@ function controlScreen() {
 }
 
 function animate() {
-  player.draw();
-  player.update();
+   player.update();
+ player.draw();
   requestAnimationFrame(animate);
 }
 
