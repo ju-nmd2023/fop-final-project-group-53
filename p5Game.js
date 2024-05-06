@@ -9,6 +9,7 @@ let button2;
 
 let gameHeight;
 let gameWidth;
+let player;
 
 function preload() {
   // myFont = loadFont("LilitaOne-Regular.ttf");
@@ -24,7 +25,7 @@ function setup() {
   frameRate(30);
   startScreen();
   textFont("Times New Roman");
- const player = new Player(gameWidth, gameHeight); //creates player
+  player = new Player(canvasWidth, canvasHeight); //creates player
 }
 
 function startScreen() {
@@ -60,22 +61,24 @@ class Player {
     this.gameWidth = gameWidth;
     this.gameHeight = gameHeight;
     this.imgWidht = 200;
-    this.imgHeight = 166;
+    this.imgHeight = 170;
     this.x = 0;
     this.y = this.gameHeight - this.imgHeight;
     this.frameX = 0;
     this.frameY = 0;
-    this.maxFrame = 10;
+    this.maxFrame = 9;
     this.fps = 20;
     this.frameTimer = 5;
     this.frameInterval = 1000 / this.fps;
-    this.speed = 1;
-    this.vy = 0;
+    this.speed = 0.2;
+    this.vy = 1;
     this.weight = 1;
+    this.previousDirection = null;
   }
 
   draw() {
     //create sprite image by https://p5js.org/reference/#/p5/image
+    //push();
     image(
       img,
       this.x + 250,
@@ -87,25 +90,70 @@ class Player {
       this.imgWidht,
       this.imgHeight
     ); //draws the player
-    push();
-    fill(255);
-    rect(this.x, this.y, 50, 50);
-
-    pop();
+    //pop();
   }
 
   update() {
-    //millis() returns the number of milliseconds since the sketch started.
-    /*if (millis() - this.frameTimer > this.frameInterval) {
-      this.frameX = (this.frameX + 1) % this.maxFrame;
-      this.frameTimer = millis(); // Reset the frame timer
-    }*/
+    //SPRITE ANIMATION FRAME BY FRAME
+    //checks if enough time has passed for the next frame to be shown. If this condition is true, it means it's time to update the frame.
+    if (this.frameTimer > this.frameInterval) {
+      //checks if the current frame index exceeds the maximum frame index. If it does, it resets spriteanimation back to 0
+      if (this.frameX >= this.maxFrame) this.frameX = 0; //resets animation loop
+      else this.frameX++; //display next frame in the animation
+      this.frameTimer = 0; //resets the frameTimer back to zero after making an animation of all 10 (0-9) frames
+    } else {
+      //controls the animation and ensure consistent timing, player is running
+      this.frameTimer += deltaTime; //deltatime calculates the amount of time it took draw() to execute each frame of the sprite img.
+    }
+    //CONTROLS
+    let placement = this.speed * deltaTime; //deltatime calculates the amount of time it took draw() to execute each frame of the sprite img.
+    if (keyIsPressed && keyCode == RIGHT_ARROW) {
+      this.x += placement;
+      this.frameY = 0;
+      this.maxFrame = 9;
+      this.previousDirection = "right";
+    } else if (keyIsPressed && keyCode == LEFT_ARROW) {
+      this.x -= placement;
+      this.frameY = 1;
+      this.maxFrame = 9;
+      this.previousDirection = "left";
+    } else if (keyIsPressed && keyCode == UP_ARROW) {
+      this.maxFrame = 6;
+      // got help with writing previous direction detection code from https://chatgpt.com/c/5b563428-b8d0-44be-b4b3-cc8fcd2e7562
+      if (this.previousDirection === "right") {
+        this.vy -= 2; //velocity on 20, meaning that when jumping up the speed goes from 20->0 and when he falls down again it goes from 0->20
+        this.frameY = 2;
+        this.x += placement / 2;
+      } else if (this.previousDirection === "left") {
+        this.vy -= 2; //velocity on 20, meaning that when jumping up the speed goes from 20->0 and when he falls down again it goes from 0->20
+        this.frameY = 3;
+        this.x -= placement / 2;
+      }
+    }
+    //velocity when jumping.
+    this.y += this.vy;
+    //if the player is not on the ground...
+    if (!this.onGround()) {
+      this.vy += this.weight; //simulates gravity
+      this.maxFrame = 6;
+    } else {
+      this.vy = 0;
+      this.maxFrame = 9;
+    }
 
-    //placement
-    //let placement = this.speed * deltatime;
-    //movement
-    //this.x+= placement;
-    
+    //CANT RUN OR JUMP OUTSIDE CANVAS
+    if (this.x > 310) {
+      this.x = 310;
+    }
+    if (this.x < -310) {
+      this.x = -310;
+    }
+    if (this.y > this.gameHeight - this.imgHeight) {
+      this.y = this.gameHeight - this.imgHeight;
+    }
+  }
+  onGround() {
+    return this.y > this.gameHeight - this.imgHeight;
   }
 }
 
@@ -114,12 +162,12 @@ function controlScreen() {
 }
 
 function animate() {
-   player.update();
- player.draw();
-  requestAnimationFrame(animate);
+  player.draw();
+  player.update();
+  //requestAnimationFrame(animate);
 }
 
 function draw() {
   gameScreen();
-  animate();
+  animate(0);
 }
