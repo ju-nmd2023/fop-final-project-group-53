@@ -224,8 +224,11 @@ class Log {
     this.x += this.speed;
     //create more logs
     this.logTimer += deltaTime; //creates more logs
-    logs.push(new Log(canvasWidth, canvasHeight));
-
+    if (this.logTimer > this.frameInterval) {
+      logs.push(new Log(canvasWidth, canvasHeight));
+      this.logTimer = 0;
+      this.logInterval = random(100, 200);
+    }
     //logs = logs.filter((log) => !log.markedForDeletion); //all logs are tested and checked, if the markedfordeletion property is false. Only the amount of logs in picture are counted in console.log
   }
 }
@@ -252,6 +255,8 @@ function draw() {
   //controlScreen();
   for (let i = 0; i < logs.length; i++) {
     logs[i].draw();
+
     //logs[i].update();
   }
 }
+console.log(logs);
