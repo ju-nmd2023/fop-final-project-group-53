@@ -45,13 +45,9 @@ function setup() {
   createCanvas(canvasWidth, canvasHeight);
   frameRate(30);
   startScreen();
+  reloadGameScreen();
   textFont("Times New Roman");
-  player = new Player(canvasWidth, canvasHeight); //creates player
-  // Create logs and add them to the logs array
-  for (let i = 0; i < 5; i++) {
-    logs.push(new Log(canvasWidth, canvasHeight));
-  }
-  meatball = new Meatball(canvasWidth, canvasHeight);
+
   //Play Button
   button = createButton("Start Game");
   button.position(180, 435);
@@ -101,16 +97,16 @@ function gameScreen() {
   button2.remove();
   //button3.remove();
 }
+
+//reset game page inspiration: https://www.youtube.com/watch?v=lm8Y8TD4CTM
 function reloadGameScreen() {
-  clear();
-  gameScreen();
-  for (let i = 0; i < logs.length; i++) {
-    logs[i].draw();
-    logs[i].update();
-    collision(player, logs[i]); // Check collision with each log
+  player = new Player(canvasWidth, canvasHeight); //creates player
+  // Create logs and add them to the logs array
+  logs = []; //clear logs array
+  for (let i = 0; i < 5; i++) {
+    logs.push(new Log(canvasWidth, canvasHeight));
   }
-  player.update();
-  player.draw();
+  meatball = new Meatball(canvasWidth, canvasHeight);
 }
 
 class Player {
@@ -355,12 +351,19 @@ function mousePressed() {
     mouseY > 520 &&
     mouseY < 545
   ) {
-    screen = "reload game screen"; // Go back to the start screen
+    screen = "game screen"; // Go back to the start screen
+    reloadGameScreen();
   }
 }
 
 function animate() {
-  reloadGameScreen();
+  for (let i = 0; i < logs.length; i++) {
+    logs[i].draw();
+    logs[i].update();
+    collision(player, logs[i]); // Check collision with each log
+  }
+  player.update();
+  player.draw();
 }
 
 function draw() {
@@ -375,22 +378,13 @@ function draw() {
     startScreen();
   } else if (screen === "game screen") {
     gameScreen();
-    //animate(0);
+    //reloadGameScreen();
     if (!gameOver) {
       animate(0);
     }
   } else if (screen === "controls screen") {
     controlScreen();
-
-    /*if (20 < mouseX < 100 && 20 < mouseY < 100 && mouseIsPressed) {
-      screen = "game screen";
-    }*/
   } else if (screen === "result screen") {
     resultScreen();
-    /*if (220 < mouseX < 350 && 520 < mouseY < 545 && mouseIsPressed) {
-      screen = "start screen";
-    }*/
-  } else if (screen === "reload game screen") {
-    reloadGameScreen();
   }
 }
