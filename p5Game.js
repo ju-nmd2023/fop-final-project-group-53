@@ -26,8 +26,8 @@ let meatball;
 let coins = [];
 let score = 0;
 let firstPlace = 1000;
-let secondPlace = 20;
-let thirdPlace = 300;
+let secondPlace = 872;
+let thirdPlace = 360;
 
 function preload() {
   // myFont = loadFont("LilitaOne-Regular.ttf");
@@ -36,6 +36,7 @@ function preload() {
   //for game screen
   backgroundimg = loadImage("images/backgroundImg.jpg");
   img = loadImage("images/sprites2.png");
+  meatballimg = loadImage("images/meatball.png");
   //for control screen
   controlimg = loadImage("images/controlscreen_image.png");
   resultimg = loadImage("images/resultscreen_image.png");
@@ -60,15 +61,9 @@ function setup() {
 }
 
 function startScreen() {
+  clear();
   background(startimg);
   screen = "start screen";
-  //button3.remove();
-  /* textSize(65);
-  textAlign(CENTER);
-  textStyle(BOLD);
-  text("Cloudy", width / 2, height / 2 - 140);
-  text("with a chance of", width / 2, height / 2 - 70);
-  text("meatballs", width / 2, height / 2);*/
 }
 
 function controlScreen() {
@@ -271,7 +266,32 @@ class Log {
   }
 }
 
-class Meatball {}
+class Meatball {
+  constructor(gameWidth, gameHeight) {
+    this.gameWidth = gameWidth;
+    this.gameHeight = gameHeight;
+    this.imgWidth = 500;
+    this.imgHeight = 500;
+    this.x = Math.floor(Math.random() * 2000);
+    this.y = 0;
+    this.frameX = 0;
+    this.speed = 8;
+  }
+
+  draw() {
+    image(
+      meatballimg,
+      100,
+      100,
+      this.imgWidth,
+      this.imgHeight,
+      this.frameX * this.imgWidth,
+      0 * this.imgHeight,
+      this.imgWidth,
+      this.imgHeight
+    );
+  }
+}
 
 function collision(player, log) {
   let pRectX = player.x + 365;
@@ -300,8 +320,7 @@ function collision(player, log) {
     pRectY < lRectY + lRectHeight &&
     pRectY + pRectHeight > lRectY
   ) {
-    gameOver = true;
-    resultScreen();
+    // gameOver = true;
   } else {
     gameOver = false;
   }
@@ -353,6 +372,7 @@ function mousePressed() {
   ) {
     screen = "game screen"; // Go back to the start screen
     reloadGameScreen();
+    gameOver = false;
   }
 }
 
@@ -364,6 +384,7 @@ function animate() {
   }
   player.update();
   player.draw();
+  meatball.draw();
 }
 
 function draw() {
@@ -381,6 +402,8 @@ function draw() {
     //reloadGameScreen();
     if (!gameOver) {
       animate(0);
+    } else {
+      resultScreen();
     }
   } else if (screen === "controls screen") {
     controlScreen();
