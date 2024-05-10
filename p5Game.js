@@ -11,7 +11,7 @@ let button3;
 
 let gameHeight;
 let gameWidth;
-let pauseGame = !pauseGame;
+let pauseGame;
 let player;
 
 let log;
@@ -23,6 +23,7 @@ let logRadius;
 let totalRadius;
 let logs = [];
 
+let meatballimg;
 let meatball;
 let coins = [];
 let score = 0;
@@ -31,9 +32,12 @@ let secondPlace = 872;
 let thirdPlace = 360;
 let timer = 1;
 
-let coinTimer = 0;
-let coinInterval = 1000;
-let randomCoinInterval = Math.random() * 1000 + 500;
+let meatballTimer = 0;
+let meatballInterval = 1000;
+let randomMeatballInterval = Math.random() * 1000 + 500;
+
+minusCoins = [];
+let food;
 
 function preload() {
   // myFont = loadFont("LilitaOne-Regular.ttf");
@@ -43,6 +47,14 @@ function preload() {
   backgroundimg = loadImage("images/backgroundImg.jpg");
   img = loadImage("images/sprites2.png");
   meatballimg = loadImage("images/meatball.png");
+  minusCoins[0] = loadImage("images/apple.png");
+  minusCoins[1] = loadImage("images/banana.png");
+  minusCoins[2] = loadImage("images/chicken.png");
+  minusCoins[3] = loadImage("images/fish.png");
+  minusCoins[4] = loadImage("images/melon.png");
+
+  for (let i = 0; i < 3; i++) {}
+
   //for control screen
   controlimg = loadImage("images/controlscreen_image.png");
   resultimg = loadImage("images/resultscreen_image.png");
@@ -97,10 +109,10 @@ function gameScreen() {
   button.remove();
   button2.remove();
   push();
+  //SCORE
   textSize(16);
   text("SCORE: " + score, 25, 37);
-  pop();
-  push();
+  //PAUSE BUTTON
   noStroke();
   fill(200, 200, 250);
   ellipse(555, 35, 30, 30);
@@ -117,10 +129,10 @@ function gameScreen() {
   } else {
     push();
     stroke("white");
-    strokeWeight(2.5);
-    line(550, 27, 563, 35);
-    line(563, 35, 550, 43);
-    line(550, 43, 550, 27);
+    strokeWeight(2.2);
+    line(551, 27, 563, 35);
+    line(563, 35, 551, 43);
+    line(551, 43, 551, 27);
     pop();
   }
 }
@@ -135,6 +147,7 @@ function reloadGameScreen() {
   }
   coins = [];
   coins.push(new Meatball(canvasWidth, canvasHeight));
+  food = new Rotten(canvasWidth, canvasHeight, minusCoins[0]);
   //pauseGame = !pauseGame;
 }
 
@@ -351,6 +364,32 @@ class Meatball {
   }
 }
 
+function Rotten(x, y, food) {
+  this.x = this.x;
+  this.y = y;
+  this.img = food;
+  this.draw = function () {
+    push();
+    stroke(50);
+    fill("rgba(0,0,0,0)");
+    rect(this.x, this.y, this.imgWidth, this.imgHeight);
+    pop();
+    image(
+      this.img,
+      100,
+      100,
+      this.imgWidth,
+      this.imgHeight
+      /*this.frameX * this.imgWidth,
+      0 * this.imgHeight,
+      this.imgWidth,
+      this.imgHeight*/
+    );
+  };
+
+  this.update = function () {};
+}
+
 function collision(player, log, meatball) {
   //COLLISION WITH LOGS
   let pRectX = player.x + 365;
@@ -386,13 +425,14 @@ function collision(player, log, meatball) {
 
   //COLLISION WITH MEATBALLS
 
-  coins.forEach((meeatbal) => {
+  coins.forEach((meatball) => {
     const dx = pRectX + pRectWidth / 2 - (meatball.x + meatball.imgWidth / 2);
-    const dy = pRectY + pRectHeight / 2 - (meatball.y + meatball.imgGeight / 2);
+    const dy = pRectY + pRectHeight / 2 - (meatball.y + meatball.imgHeight / 2);
     const distance = Math.sqrt(dx * dx + dy * dy); //the distance between those center points
     if (distance < meatball.imgHeight / 2 + pRectHeight / 2) {
       //this.markedForDeletion = true;
       score++;
+      coins.splice(0, 1);
     }
   });
 }
@@ -453,7 +493,7 @@ function mousePressed() {
     mouseY > 20 &&
     mouseY < 50
   ) {
-    //pauseGame = !pauseGame;
+    pauseGame = !pauseGame;
   }
 }
 
@@ -470,6 +510,11 @@ function animate() {
     meatball.draw();
     meatball.update();
   });
+
+  //ROTTEN FOOD
+  const r = floor(random(0, minusCoins.length));
+  food = new Rotten(canvasWidth, canvasHeight, minusCoins[r]);
+  minusCoins.push(food);
 }
 
 function draw() {
@@ -487,11 +532,11 @@ function draw() {
     //reloadGameScreen();
     if (!gameOver) {
       animate(0);
-      if (coinTimer > coinInterval + randomCoinInterval) {
+      if (meatballTimer > meatballInterval + randomMeatballInterval) {
         coins.push(new Meatball(canvasWidth, canvasHeight));
-        coinTimer = 0;
+        meatballTimer = 0;
       } else {
-        coinTimer += deltaTime; //creates more meatballs
+        meatballTimer += deltaTime; //creates more meatballs
       }
     } else {
       resultScreen();
