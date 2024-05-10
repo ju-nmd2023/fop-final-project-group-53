@@ -11,6 +11,7 @@ let button3;
 
 let gameHeight;
 let gameWidth;
+let pauseGame = !pauseGame;
 let player;
 
 let log;
@@ -28,6 +29,11 @@ let score = 0;
 let firstPlace = 1000;
 let secondPlace = 872;
 let thirdPlace = 360;
+let timer = 1;
+
+let coinTimer = 0;
+let coinInterval = 1000;
+let randomCoinInterval = Math.random() * 1000 + 500;
 
 function preload() {
   // myFont = loadFont("LilitaOne-Regular.ttf");
@@ -90,7 +96,33 @@ function gameScreen() {
   background(backgroundimg);
   button.remove();
   button2.remove();
-  //button3.remove();
+  push();
+  textSize(16);
+  text("SCORE: " + score, 25, 37);
+  pop();
+  push();
+  noStroke();
+  fill(200, 200, 250);
+  ellipse(555, 35, 30, 30);
+  fill("black");
+  pop();
+
+  if (!pauseGame) {
+    push();
+    noStroke();
+    fill("white");
+    rect(550, 27, 3, 15);
+    rect(557, 27, 3, 15);
+    pop();
+  } else {
+    push();
+    stroke("white");
+    strokeWeight(2.5);
+    line(550, 27, 563, 35);
+    line(563, 35, 550, 43);
+    line(550, 43, 550, 27);
+    pop();
+  }
 }
 
 //reset game page inspiration: https://www.youtube.com/watch?v=lm8Y8TD4CTM
@@ -101,7 +133,9 @@ function reloadGameScreen() {
   for (let i = 0; i < 5; i++) {
     logs.push(new Log(canvasWidth, canvasHeight));
   }
-  meatball = new Meatball(canvasWidth, canvasHeight);
+  coins = [];
+  coins.push(new Meatball(canvasWidth, canvasHeight));
+  //pauseGame = !pauseGame;
 }
 
 class Player {
@@ -270,30 +304,55 @@ class Meatball {
   constructor(gameWidth, gameHeight) {
     this.gameWidth = gameWidth;
     this.gameHeight = gameHeight;
-    this.imgWidth = 500;
-    this.imgHeight = 500;
-    this.x = Math.floor(Math.random() * 2000);
+    this.imgWidth = 25;
+    this.imgHeight = 25;
+    //got help to create right x window, between 50 and 550, for the meatballs https://chatgpt.com/c/4e3512bb-735f-442b-8ccc-56fda2de9cdf
+    this.x = Math.floor(Math.random() * (550 - 50 + 1)) + 50;
     this.y = 0;
     this.frameX = 0;
     this.speed = 8;
   }
 
   draw() {
+    push();
+    stroke(50);
+    fill("rgba(0,0,0,0)");
+    rect(this.x, this.y, this.imgWidth, this.imgHeight);
+    pop();
     image(
       meatballimg,
-      100,
-      100,
-      this.imgWidth,
-      this.imgHeight,
-      this.frameX * this.imgWidth,
-      0 * this.imgHeight,
+      this.x,
+      this.y,
       this.imgWidth,
       this.imgHeight
+      /*this.frameX * this.imgWidth,
+      0 * this.imgHeight,
+      this.imgWidth,
+      this.imgHeight*/
     );
+  }
+
+  update() {
+    this.y += this.speed;
+
+    //MEATBALL TOUCHES THE GROUND
+    /* if (this.y > 495) {
+      this.speed = 0;
+      //  TIMER
+      //code inspiration from https://editor.p5js.org/marynotari/sketches/S1T2ZTMp-
+      if ((frameCount * 2) % 60 == 0 && timer > 0) {
+        // if the frameCount is divisible by 60, then a second has passed. it will stop at 0
+        timer--;
+      }
+      if (timer == 0) {
+        gameOver = true;
+      }
+    }*/
   }
 }
 
-function collision(player, log) {
+function collision(player, log, meatball) {
+  //COLLISION WITH LOGS
   let pRectX = player.x + 365;
   let pRectY = player.y - 50;
   let pRectWidth = player.imgWidth - 240;
@@ -324,6 +383,18 @@ function collision(player, log) {
   } else {
     gameOver = false;
   }
+
+  //COLLISION WITH MEATBALLS
+
+  coins.forEach((meeatbal) => {
+    const dx = pRectX + pRectWidth / 2 - (meatball.x + meatball.imgWidth / 2);
+    const dy = pRectY + pRectHeight / 2 - (meatball.y + meatball.imgGeight / 2);
+    const distance = Math.sqrt(dx * dx + dy * dy); //the distance between those center points
+    if (distance < meatball.imgHeight / 2 + pRectHeight / 2) {
+      //this.markedForDeletion = true;
+      score++;
+    }
+  });
 }
 
 function resultScreen() {
@@ -363,7 +434,8 @@ function mousePressed() {
   ) {
     screen = "start screen"; // Go back to the start screen
     setup();
-  } else if (
+  }
+  if (
     screen === "result screen" &&
     mouseX > 250 &&
     mouseX < 350 &&
@@ -374,17 +446,30 @@ function mousePressed() {
     reloadGameScreen();
     gameOver = false;
   }
+  if (
+    screen === "game screen" &&
+    mouseX > 540 &&
+    mouseX < 570 &&
+    mouseY > 20 &&
+    mouseY < 50
+  ) {
+    //pauseGame = !pauseGame;
+  }
 }
 
 function animate() {
   for (let i = 0; i < logs.length; i++) {
     logs[i].draw();
     logs[i].update();
-    collision(player, logs[i]); // Check collision with each log
+    collision(player, logs[i], meatball); // Check collision with each log
   }
   player.update();
   player.draw();
-  meatball.draw();
+
+  coins.forEach((meatball) => {
+    meatball.draw();
+    meatball.update();
+  });
 }
 
 function draw() {
@@ -402,6 +487,12 @@ function draw() {
     //reloadGameScreen();
     if (!gameOver) {
       animate(0);
+      if (coinTimer > coinInterval + randomCoinInterval) {
+        coins.push(new Meatball(canvasWidth, canvasHeight));
+        coinTimer = 0;
+      } else {
+        coinTimer += deltaTime; //creates more meatballs
+      }
     } else {
       resultScreen();
     }
