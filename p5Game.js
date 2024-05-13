@@ -454,12 +454,12 @@ function resultScreen() {
   screen = "result screen";
   background(resultimg);
   push();
+  //SCORE
   textSize(18);
   textStyle(BOLD);
   textAlign(CENTER);
   text("SCORE: " + score, canvasWidth / 2, 255);
-  pop();
-  push();
+  //SCOREBOARD
   textSize(18);
   textStyle(BOLD);
   textAlign(RIGHT);
@@ -467,10 +467,19 @@ function resultScreen() {
   text(secondPlace + " p", canvasWidth / 2 + 70, 400);
   text(thirdPlace + " p", canvasWidth / 2 + 70, 452);
   pop();
+  //PLAY AGAIN BUTTON
   push();
   textSize(18);
   textAlign(CENTER);
   text("Play Again", canvasWidth / 2, 540);
+  //BACK TO START BUTTON
+
+  noStroke();
+  fill(210, 210, 250);
+  rect(26, 30, 80, 30);
+  fill("black");
+  textSize(18);
+  text("quit", 65, 50);
   pop();
   button.remove();
   button2.remove();
@@ -494,7 +503,20 @@ function mousePressed() {
     mouseY > 520 &&
     mouseY < 545
   ) {
-    screen = "game screen"; // Go back to the start screen
+    screen = "game screen"; // Run game again
+    reloadGameScreen();
+    gameOver = false;
+    score = 0;
+  }
+  if (
+    screen === "result screen" &&
+    mouseX > 26 &&
+    mouseX < 106 &&
+    mouseY > 30 &&
+    mouseY < 60
+  ) {
+    screen = "start screen"; // Go back to the start screen
+    setup();
     reloadGameScreen();
     gameOver = false;
     score = 0;
@@ -506,7 +528,7 @@ function mousePressed() {
     mouseY > 20 &&
     mouseY < 50
   ) {
-    pauseGame = !pauseGame;
+    pauseGame = !pauseGame; // Pause game while playing
   }
 }
 
