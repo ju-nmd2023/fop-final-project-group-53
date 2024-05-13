@@ -15,9 +15,9 @@ let pauseGame;
 let player;
 
 let log;
-let dx;
-let dy;
-let distance;
+let dx1;
+let dy1;
+let distance1;
 let playerRadius;
 let logRadius;
 let totalRadius;
@@ -27,33 +27,38 @@ let meatballimg;
 let meatball;
 let coins = [];
 let score = 0;
-let firstPlace = 1000;
-let secondPlace = 872;
-let thirdPlace = 360;
+let firstPlace = 0;
+let secondPlace = 0;
+let thirdPlace = 0;
 let timer = 1;
-
+let dx2;
+let dy2;
+let distance2;
 let meatballTimer = 0;
 let meatballInterval = 1000;
 let randomMeatballInterval = Math.random() * 1000 + 500;
 
-minusCoins = [];
-let food;
+/*bubbles*/ let minusCoins = [];
+/*flowers*/ let food = [];
+let rottenFood;
+let rottenTimer = 0;
+let rottenInterval = 1000 * 10;
+let randomRottenInterval = Math.random() * 1000 + 500;
+let r = floor(random(0, food.length));
+let dx3;
+let dy3;
+let distance3;
 
 function preload() {
-  // myFont = loadFont("LilitaOne-Regular.ttf");
   //for start screen
   startimg = loadImage("images/startscreen_image.png");
   //for game screen
   backgroundimg = loadImage("images/backgroundImg.jpg");
   img = loadImage("images/sprites2.png");
   meatballimg = loadImage("images/meatball.png");
-  minusCoins[0] = loadImage("images/apple.png");
-  minusCoins[1] = loadImage("images/banana.png");
-  minusCoins[2] = loadImage("images/chicken.png");
-  minusCoins[3] = loadImage("images/fish.png");
-  minusCoins[4] = loadImage("images/melon.png");
-
-  for (let i = 0; i < 3; i++) {}
+  for (let i = 0; i < 5; i++) {
+    food[i] = loadImage("foodimages/food" + i + ".png"); //learnt from https://www.youtube.com/watch?v=FVYGyaxG4To
+  }
 
   //for control screen
   controlimg = loadImage("images/controlscreen_image.png");
@@ -147,7 +152,8 @@ function reloadGameScreen() {
   }
   coins = [];
   coins.push(new Meatball(canvasWidth, canvasHeight));
-  food = new Rotten(canvasWidth, canvasHeight, minusCoins[0]);
+  minusCoins = [];
+  minusCoins.push(new Rotten(canvasWidth, canvasHeight, food[r]));
   //pauseGame = !pauseGame;
 }
 
@@ -277,7 +283,7 @@ class Log {
     this.frameInterval = 1000 / this.fps;
     this.speed = 9;
     this.logTimer = 0;
-    this.logInterval = 1000;
+    this.logInterval = 8000;
     this.randomLogInterval = Math.random() * 1000 + 500;
     //this.markedForDeletion = false;
   }
@@ -297,18 +303,20 @@ class Log {
   }
   update() {
     //log sprite animation
-    if (this.frameTimer > this.frameInterval) {
-      if (this.frameX >= this.maxFrame) this.frameX = 0;
-      else this.frameX++;
-      this.frameTimer = 0; //resets the frameTimer back to zero after making an animation of all 10 (0-9) frames
-    } else {
-      this.frameTimer += deltaTime;
-    }
-    this.x += this.speed;
+    if (score > 4) {
+      if (this.frameTimer > this.frameInterval) {
+        if (this.frameX >= this.maxFrame) this.frameX = 0;
+        else this.frameX++;
+        this.frameTimer = 0; //resets the frameTimer back to zero after making an animation of all 10 (0-9) frames
+      } else {
+        this.frameTimer += deltaTime;
+      }
+      this.x += this.speed;
 
-    //create more logs
-    if (this.x > canvasWidth) {
-      this.x = -200;
+      //create more logs
+      if (this.x > canvasWidth) {
+        this.x = -200;
+      }
     }
   }
 }
@@ -321,35 +329,25 @@ class Meatball {
     this.imgHeight = 25;
     //got help to create right x window, between 50 and 550, for the meatballs https://chatgpt.com/c/4e3512bb-735f-442b-8ccc-56fda2de9cdf
     this.x = Math.floor(Math.random() * (550 - 50 + 1)) + 50;
-    this.y = 0;
+    this.y = -100;
     this.frameX = 0;
     this.speed = 8;
   }
 
   draw() {
-    push();
+    /* push();
     stroke(50);
     fill("rgba(0,0,0,0)");
     rect(this.x, this.y, this.imgWidth, this.imgHeight);
-    pop();
-    image(
-      meatballimg,
-      this.x,
-      this.y,
-      this.imgWidth,
-      this.imgHeight
-      /*this.frameX * this.imgWidth,
-      0 * this.imgHeight,
-      this.imgWidth,
-      this.imgHeight*/
-    );
+    pop();*/
+    image(meatballimg, this.x, this.y, this.imgWidth, this.imgHeight);
   }
 
   update() {
     this.y += this.speed;
 
     //MEATBALL TOUCHES THE GROUND
-    /* if (this.y > 495) {
+    if (this.y > 495) {
       this.speed = 0;
       //  TIMER
       //code inspiration from https://editor.p5js.org/marynotari/sketches/S1T2ZTMp-
@@ -360,79 +358,93 @@ class Meatball {
       if (timer == 0) {
         gameOver = true;
       }
-    }*/
+    }
   }
 }
 
-function Rotten(x, y, food) {
-  this.x = this.x;
-  this.y = y;
-  this.img = food;
+function Rotten(gameWidth, gameHeight) {
+  this.gameWidth = gameWidth;
+  this.gameHeight = gameHeight;
+  this.x = Math.floor(Math.random() * (550 - 50 + 1)) + 50;
+  this.y = -100;
+  this.speed = 8;
+  this.img = food[floor(random(0, food.length))];
+  this.imgWidth = 50;
+  this.imgHeight = 50;
+
   this.draw = function () {
-    push();
+    /* push();
     stroke(50);
     fill("rgba(0,0,0,0)");
-    rect(this.x, this.y, this.imgWidth, this.imgHeight);
-    pop();
-    image(
-      this.img,
-      100,
-      100,
-      this.imgWidth,
-      this.imgHeight
-      /*this.frameX * this.imgWidth,
-      0 * this.imgHeight,
-      this.imgWidth,
-      this.imgHeight*/
-    );
+    rect(this.x + 20, this.y + 15, this.imgWidth - 40, this.imgHeight - 30);
+    pop();*/
+    image(this.img, this.x, this.y, this.imgWidth, this.imgHeight);
   };
 
-  this.update = function () {};
+  this.update = function () {
+    if (score > 8) {
+      this.y += this.speed;
+    }
+  };
 }
 
-function collision(player, log, meatball) {
+function collision(player, log, meatball, food) {
   //COLLISION WITH LOGS
-  let pRectX = player.x + 365;
+  let pRectX = player.x + 367;
   let pRectY = player.y - 50;
-  let pRectWidth = player.imgWidth - 240;
+  let pRectWidth = player.imgWidth - 230;
   let pRectHeight = player.imgHeight - 30;
 
-  let lRectX = log.x + 90;
-  let lRectY = log.y + 30;
-  let lRectWidth = log.imgWidth - 250;
-  let lRectHeight = log.imgHeight - 120;
-  push();
+  let lRectX = log.x + 75;
+  let lRectY = log.y + 40;
+  let lRectWidth = log.imgWidth - 230;
+  let lRectHeight = log.imgHeight - 140;
+  /*push();
   stroke(50);
   fill("rgba(0,0,0,0)");
   rect(pRectX, pRectY, pRectWidth, pRectHeight);
   stroke(50);
   fill("rgba(0,0,0,0)");
   rect(lRectX, lRectY, lRectWidth, lRectHeight);
-  pop();
+  pop();*/
 
-  //got help with what to write in this if-statement from: https://chatgpt.com/c/018a26bb-9246-423e-aac0-c394643ad1db
-
-  if (
-    pRectX < lRectX + lRectWidth &&
-    pRectX + pRectWidth < lRectX &&
-    pRectY < lRectY + lRectHeight &&
-    pRectY + pRectHeight > lRectY
-  ) {
-    // gameOver = true;
-  } else {
-    gameOver = false;
-  }
+  logs.forEach((log) => {
+    const dx1 = lRectX + lRectWidth / 2 - (pRectX + pRectWidth / 2);
+    const dy1 = lRectY + lRectHeight / 2 - (pRectY + pRectHeight / 2);
+    const distance1 = Math.sqrt(dx1 * dx1 + dy1 * dy1);
+    if (distance1 < lRectHeight / 2 + pRectHeight / 2) {
+      gameOver = true;
+    }
+  });
 
   //COLLISION WITH MEATBALLS
-
   coins.forEach((meatball) => {
-    const dx = pRectX + pRectWidth / 2 - (meatball.x + meatball.imgWidth / 2);
-    const dy = pRectY + pRectHeight / 2 - (meatball.y + meatball.imgHeight / 2);
-    const distance = Math.sqrt(dx * dx + dy * dy); //the distance between those center points
-    if (distance < meatball.imgHeight / 2 + pRectHeight / 2) {
-      //this.markedForDeletion = true;
+    const dx2 = pRectX + pRectWidth / 2 - (meatball.x + meatball.imgWidth / 2);
+    const dy2 =
+      pRectY + pRectHeight / 2 - (meatball.y + meatball.imgHeight / 2);
+    const distance2 = Math.sqrt(dx2 * dx2 + dy2 * dy2); //the distance2 between those center points
+    if (distance2 < meatball.imgHeight / 2 + pRectHeight / 2) {
       score++;
       coins.splice(0, 1);
+    }
+  });
+
+  minusCoins.forEach((food, i) => {
+    //FOOD TOUCHES THE GROUND
+    if (food.y > 490) {
+      for (i = 0; i < 5; i++) {
+        minusCoins.splice(i, 1);
+      }
+    }
+    //COLLISION WITH FOOD
+    const dx3 =
+      pRectX + pRectWidth / 2 - (food.x + 20 + (food.imgWidth - 40) / 2);
+    const dy3 =
+      pRectY + pRectHeight / 2 - (food.y + 15 + (food.imgHeight - 30) / 2);
+    const distance3 = Math.sqrt(dx3 * dx3 + dy3 * dy3);
+    if (distance3 < (food.imgHeight - 30) / 2 + pRectHeight / 2) {
+      score--;
+      minusCoins.splice(i, 1);
     }
   });
 }
@@ -485,6 +497,7 @@ function mousePressed() {
     screen = "game screen"; // Go back to the start screen
     reloadGameScreen();
     gameOver = false;
+    score = 0;
   }
   if (
     screen === "game screen" &&
@@ -501,7 +514,7 @@ function animate() {
   for (let i = 0; i < logs.length; i++) {
     logs[i].draw();
     logs[i].update();
-    collision(player, logs[i], meatball); // Check collision with each log
+    collision(player, logs[i], coins[i], minusCoins[i]); // Check collision with each log
   }
   player.update();
   player.draw();
@@ -512,31 +525,38 @@ function animate() {
   });
 
   //ROTTEN FOOD
-  const r = floor(random(0, minusCoins.length));
-  food = new Rotten(canvasWidth, canvasHeight, minusCoins[r]);
-  minusCoins.push(food);
+  minusCoins.forEach((food) => {
+    food.draw();
+    food.update();
+  });
 }
 
+//got help with timerSpeed code from https://chatgpt.com/c/38c0759d-0e54-4e36-9bcd-6c0aabe86a71
+let timerSpeed = 1.0;
 function draw() {
-  // gameScreen();
-  //  player.draw();
-
-  // resultScreen();
-  /*if (collision(player, log)) {
-    gameOver = true;
-  }*/
   if (screen === "start screen") {
     startScreen();
   } else if (screen === "game screen") {
     gameScreen();
-    //reloadGameScreen();
     if (!gameOver) {
       animate(0);
+      //meatball
+      if (score % 5 === 0) {
+        timerSpeed += 0.01;
+      }
       if (meatballTimer > meatballInterval + randomMeatballInterval) {
         coins.push(new Meatball(canvasWidth, canvasHeight));
         meatballTimer = 0;
       } else {
-        meatballTimer += deltaTime; //creates more meatballs
+        meatballTimer += deltaTime * timerSpeed; //creates more meatballs
+      }
+      //rotten food
+      if (rottenTimer > rottenInterval + randomRottenInterval) {
+        minusCoins.push(new Rotten(canvasWidth, canvasHeight));
+        rottenTimer = 0;
+        randomRottenInterval = Math.random() * 1000 + 500;
+      } else {
+        rottenTimer += deltaTime; //creates more rotten food
       }
     } else {
       resultScreen();
