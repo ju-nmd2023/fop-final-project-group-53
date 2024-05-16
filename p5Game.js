@@ -23,7 +23,7 @@ let distance1;
 let playerRadius;
 let logRadius;
 let totalRadius;
-let logs = [];
+let logs;
 
 let meatballimg;
 let meatball;
@@ -166,10 +166,9 @@ function gameScreen() {
 function reloadGameScreen() {
   player = new Player(canvasWidth, canvasHeight); //creates player
   // Create logs and add them to the logs array
-  logs = []; //clear logs array
-  for (let i = 0; i < 5; i++) {
-    logs.push(new Log(canvasWidth, canvasHeight));
-  }
+  //logs = []; //clear logs array
+  logs = new Log(canvasWidth, canvasHeight);
+
   coins = [];
   coins.push(new Meatball(canvasWidth, canvasHeight));
   minusCoins = [];
@@ -428,14 +427,13 @@ function collision(player, log, meatball, food) {
   rect(lRectX, lRectY, lRectWidth, lRectHeight);
   pop();*/
 
-  logs.forEach((log) => {
-    const dx1 = lRectX + lRectWidth / 2 - (pRectX + pRectWidth / 2);
-    const dy1 = lRectY + lRectHeight / 2 - (pRectY + pRectHeight / 2);
-    const distance1 = Math.sqrt(dx1 * dx1 + dy1 * dy1);
-    if (distance1 < lRectHeight / 2 + pRectHeight / 2) {
-      gameOver = true;
-    }
-  });
+  //LOGS
+  const dx1 = lRectX + lRectWidth / 2 - (pRectX + pRectWidth / 2);
+  const dy1 = lRectY + lRectHeight / 2 - (pRectY + pRectHeight / 2);
+  const distance1 = Math.sqrt(dx1 * dx1 + dy1 * dy1);
+  if (distance1 < lRectHeight / 2 + pRectHeight / 2) {
+    gameOver = true;
+  }
 
   //COLLISION WITH MEATBALLS
   coins.forEach((meatball) => {
@@ -553,13 +551,13 @@ function mousePressed() {
 }
 
 function animate() {
-  for (let i = 0; i < logs.length; i++) {
-    logs[i].draw();
-    logs[i].update();
-    collision(player, logs[i], coins[i], minusCoins[i]); // Check collision with each log
+  for (let i = 0; i < coins.length; i++) {
+    collision(player, logs, coins[i], minusCoins[i]); // Check collision
   }
   player.update();
   player.draw();
+  logs.draw();
+  logs.update();
 
   coins.forEach((meatball) => {
     meatball.draw();
