@@ -8,6 +8,8 @@ let myFont;
 let button;
 let button2;
 let button3;
+let cloudX = 0;
+let cloudY = 0;
 
 let gameHeight;
 let gameWidth;
@@ -69,8 +71,8 @@ function setup() {
   createCanvas(canvasWidth, canvasHeight);
   frameRate(30);
   startScreen();
-  reloadGameScreen();
   textFont("Times New Roman");
+  reloadGameScreen();
 
   //Play Button
   button = createButton("Start Game");
@@ -81,6 +83,24 @@ function setup() {
   button2.position(350, 435);
   button2.size(110, 34);
   button2.mousePressed(controlScreen);
+}
+
+function clouds(x, y) {
+  //CLOUDS
+  push();
+  translate(cloudX, cloudY);
+  fill("rgba(255, 255, 255, 0.75)");
+  noStroke();
+  beginShape();
+  vertex(x + 50, y + 60);
+  bezierVertex(x + 50, y + 60, x + 65, y + 35, x + 100, y + 55);
+  bezierVertex(x + 100, y + 55, x + 120, y + 45, x + 140, y + 65);
+  bezierVertex(x + 140, y + 65, x + 175, y + 80, x + 150, y + 100);
+  bezierVertex(x + 120, y + 110, x + 140, y + 110, x + 90, y + 110);
+  bezierVertex(x + 90, y + 110, x + 45, y + 120, x + 40, y + 90);
+  bezierVertex(x + 40, y + 90, x + 20, y + 70, x + 50, y + 60);
+  endShape();
+  pop();
 }
 
 function startScreen() {
@@ -555,6 +575,8 @@ function animate() {
 
 //got help with timerSpeed code from https://chatgpt.com/c/38c0759d-0e54-4e36-9bcd-6c0aabe86a71
 let timerSpeed = 1.0;
+let cloudSpeed = -2.5;
+
 function draw() {
   if (screen === "start screen") {
     startScreen();
@@ -579,6 +601,13 @@ function draw() {
         randomRottenInterval = Math.random() * 1000 + 500;
       } else {
         rottenTimer += deltaTime; //creates more rotten food
+      }
+      //CLOUDS
+      clouds(60, 30);
+      clouds(350, 80);
+      //cloudX += cloudSpeed;
+      if (cloudX < -100) {
+        cloudX = 600;
       }
     } else {
       resultScreen();
