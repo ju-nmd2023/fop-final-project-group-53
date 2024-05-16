@@ -3,11 +3,12 @@ let canvasHeight = 600;
 let gameOver = false;
 let backgroundimg;
 let startimg;
+let meatballsGIF;
+let gifX = 0;
+let gifY = -30;
 let img;
-let myFont;
 let button;
 let button2;
-let button3;
 let cloudX = 0;
 let cloudY = 0;
 
@@ -46,7 +47,7 @@ let rottenFood;
 let rottenTimer = 0;
 let rottenInterval = 1000 * 10;
 let randomRottenInterval = Math.random() * 1000 + 500;
-let r = floor(random(0, food.length));
+let r = Math.floor(Math.random() * food.length);
 let dx3;
 let dy3;
 let distance3;
@@ -54,6 +55,7 @@ let distance3;
 function preload() {
   //for start screen
   startimg = loadImage("images/startscreen_image.png");
+  meatballsGIF = loadImage("images/rainingMeatballs.png");
   //for game screen
   backgroundimg = loadImage("images/backgroundImg.jpg");
   img = loadImage("images/sprites2.png");
@@ -107,6 +109,7 @@ function startScreen() {
   clear();
   background(startimg);
   screen = "start screen";
+  image(meatballsGIF, gifX - 30, gifY, canvasWidth + 50, canvasHeight + 50);
 }
 
 function controlScreen() {
@@ -160,20 +163,6 @@ function gameScreen() {
     line(551, 43, 551, 27);
     pop();
   }
-}
-
-//reset game page inspiration: https://www.youtube.com/watch?v=lm8Y8TD4CTM
-function reloadGameScreen() {
-  player = new Player(canvasWidth, canvasHeight); //creates player
-  // Create logs and add them to the logs array
-  //logs = []; //clear logs array
-  logs = new Log(canvasWidth, canvasHeight);
-
-  coins = [];
-  coins.push(new Meatball(canvasWidth, canvasHeight));
-  minusCoins = [];
-  minusCoins.push(new Rotten(canvasWidth, canvasHeight, food[r]));
-  //pauseGame = !pauseGame;
 }
 
 class Player {
@@ -387,7 +376,7 @@ function Rotten(gameWidth, gameHeight) {
   this.x = Math.floor(Math.random() * (550 - 50 + 1)) + 50;
   this.y = -100;
   this.speed = 8;
-  this.img = food[floor(random(0, food.length))];
+  this.img = food[Math.floor(Math.random() * food.length)];
   this.imgWidth = 50;
   this.imgHeight = 50;
 
@@ -405,6 +394,20 @@ function Rotten(gameWidth, gameHeight) {
       this.y += this.speed;
     }
   };
+}
+
+//reset game page inspiration: https://www.youtube.com/watch?v=lm8Y8TD4CTM
+function reloadGameScreen() {
+  player = new Player(canvasWidth, canvasHeight); //creates player
+  // Create logs and add them to the logs array
+  //logs = []; //clear logs array
+  logs = new Log(canvasWidth, canvasHeight);
+
+  coins = [];
+  coins.push(new Meatball(canvasWidth, canvasHeight));
+  minusCoins = [];
+  minusCoins.push(new Rotten(canvasWidth, canvasHeight, food[r]));
+  //pauseGame = !pauseGame;
 }
 
 function collision(player, log, meatball, food) {
@@ -573,11 +576,21 @@ function animate() {
 
 //got help with timerSpeed code from https://chatgpt.com/c/38c0759d-0e54-4e36-9bcd-6c0aabe86a71
 let timerSpeed = 1.0;
-let cloudSpeed = -2.5;
+let cloudSpeed = 0.3;
+let cloudSpeed1 = -0.9;
+let cloudSpeed2 = -0.6;
+let cloudX1 = 60;
+let cloudY1 = 30;
+let cloudX2 = 350;
+let cloudY2 = 80;
 
 function draw() {
   if (screen === "start screen") {
     startScreen();
+    gifY = gifY + cloudSpeed;
+    if (gifY > canvasHeight - 610 || gifY < -35) {
+      cloudSpeed = -cloudSpeed;
+    }
   } else if (screen === "game screen") {
     gameScreen();
     if (!gameOver) {
@@ -601,11 +614,15 @@ function draw() {
         rottenTimer += deltaTime; //creates more rotten food
       }
       //CLOUDS
-      clouds(60, 30);
-      clouds(350, 80);
-      //cloudX += cloudSpeed;
-      if (cloudX < -100) {
-        cloudX = 600;
+      clouds(cloudX1, cloudY1);
+      clouds(cloudX2, cloudY2);
+      cloudX1 += cloudSpeed1;
+      cloudX2 += cloudSpeed2;
+      if (cloudX1 < -170) {
+        cloudX1 = 600;
+      }
+      if (cloudX2 < -170) {
+        cloudX2 = 600;
       }
     } else {
       resultScreen();
