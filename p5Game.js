@@ -33,7 +33,7 @@ let score = 0;
 let firstPlace = 0;
 let secondPlace = 0;
 let thirdPlace = 0;
-let timer = 1;
+let timer = 1; //for time when meatball touches the ground
 let dx2;
 let dy2;
 let distance2;
@@ -102,6 +102,7 @@ function clouds(x, y) {
   bezierVertex(x + 90, y + 110, x + 45, y + 120, x + 40, y + 90);
   bezierVertex(x + 40, y + 90, x + 20, y + 70, x + 50, y + 60);
   endShape();
+
   pop();
 }
 
@@ -124,6 +125,11 @@ function controlScreen() {
   fill("black");
   textSize(18);
   text("back", 50, 50);
+  pop();
+  push();
+  textSize(16);
+  textAlign(CENTER);
+  text("hello here are some information", canvasWidth / 2, 170);
   pop();
 
   button.remove();
@@ -289,7 +295,7 @@ class Log {
     this.fps = 32;
     this.frameTimer = 4;
     this.frameInterval = 1000 / this.fps;
-    this.speed = 9;
+    this.speed = 5;
     this.logTimer = 0;
     this.logInterval = 8000;
     this.randomLogInterval = Math.random() * 1000 + 500;
@@ -319,8 +325,8 @@ class Log {
       } else {
         this.frameTimer += deltaTime;
       }
-      this.x += this.speed;
 
+      this.x += this.speed;
       //create more logs
       if (this.x > canvasWidth) {
         this.x = -200;
@@ -400,14 +406,17 @@ function Rotten(gameWidth, gameHeight) {
 function reloadGameScreen() {
   player = new Player(canvasWidth, canvasHeight); //creates player
   // Create logs and add them to the logs array
-  //logs = []; //clear logs array
   logs = new Log(canvasWidth, canvasHeight);
 
   coins = [];
   coins.push(new Meatball(canvasWidth, canvasHeight));
+  meatballTimer = 0;
+
   minusCoins = [];
   minusCoins.push(new Rotten(canvasWidth, canvasHeight, food[r]));
+  rottenTimer = 0;
   //pauseGame = !pauseGame;
+  score = 0;
 }
 
 function collision(player, log, meatball, food) {
@@ -527,7 +536,6 @@ function mousePressed() {
     screen = "game screen"; // Run game again
     reloadGameScreen();
     gameOver = false;
-    score = 0;
   }
   if (
     screen === "result screen" &&
