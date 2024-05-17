@@ -3,6 +3,10 @@ let canvasHeight = 600;
 let gameOver = false;
 let backgroundimg;
 let startimg;
+let controlimg;
+let twoPlayerImg;
+let onePlayer = true;
+let twoPlayers = false;
 let meatballsGIF;
 let gifX = 0;
 let gifY = -30;
@@ -67,6 +71,7 @@ function preload() {
 
   //for control screen
   controlimg = loadImage("images/controlscreen_image.png");
+  twoPlayerImg = loadImage("images/controlscreen_image_2players.png");
   resultimg = loadImage("images/resultscreen_image.png");
 }
 
@@ -116,23 +121,62 @@ function startScreen() {
 
 function controlScreen() {
   clear();
+  //background(controlimg);
   screen = "controls screen";
-  background(controlimg);
+  if (onePlayer === true) {
+    background(controlimg);
+    strokeWeight(1);
+    noFill();
+    rect(170, 300, 100, 30);
+  } else if (twoPlayers === true) {
+    background(twoPlayerImg);
+    strokeWeight(1);
+    noFill();
+    rect(340, 300, 100, 30);
+  }
 
   push();
   noStroke();
-  fill(210, 210, 250);
+  fill(216, 225, 250);
   rect(26, 30, 80, 30);
   fill("black");
   textSize(18);
   text("back", 50, 50);
   pop();
+
   push();
-  textSize(16);
-  textAlign(CENTER);
-  text("hello here are some information", canvasWidth / 2, 170);
+  noStroke();
+  fill(240, 230, 250);
+  rect(170, 300, 100, 30);
+  rect(340, 300, 100, 30);
+  pop();
+  push();
+  fill(0);
+  textSize(14);
+  textFont("verdana");
+  text("player one", 183, 320);
+  text("player two", 353, 320);
   pop();
 
+  if (
+    mousePressed &&
+    mouseX > 170 &&
+    mouseX < 270 &&
+    mouseY > 300 &&
+    mouseY < 330
+  ) {
+    onePlayer = true;
+    twoPlayers = false;
+  } else if (
+    mousePressed &&
+    mouseX > 340 &&
+    mouseX < 440 &&
+    mouseY > 300 &&
+    mouseY < 330
+  ) {
+    onePlayer = false;
+    twoPlayers = true;
+  }
   button.remove();
   button2.remove();
 }
@@ -287,8 +331,8 @@ class Player2 {
   constructor(gameWidth, gameHeight) {
     this.gameWidth = gameWidth;
     this.gameHeight = gameHeight;
-    this.imgWidth = 1001 / 5;
-    this.imgHeight = 1014 / 6;
+    this.imgWidth = 200;
+    this.imgHeight = 170;
     this.x = 0;
     this.y = this.gameHeight - this.imgHeight;
     this.frameX = 0;
@@ -296,7 +340,7 @@ class Player2 {
     this.maxFrame = 4;
     this.fps = 30;
     this.frameTimer = 5;
-    this.frameInterval = 1000 / this.fps;
+    this.frameInterval = 500 / this.fps;
     this.speed = 0.4;
     this.vy = 1;
     this.weight = 1;
@@ -308,7 +352,7 @@ class Player2 {
     image(
       steve,
       this.x + 250,
-      this.y + 30,
+      this.y - 15,
       this.imgWidth,
       this.imgHeight,
       this.frameX * this.imgWidth,
@@ -333,16 +377,19 @@ class Player2 {
     //CONTROLS
     let placement = this.speed * deltaTime; //deltatime calculates the amount of time it took draw() to execute each frame of the sprite img.
     if (keyIsPressed && keyCode == 68) {
+      //RIGHT
       this.previousDirection = "right";
       this.x += placement;
       this.frameY = 0;
       this.maxFrame = 4;
     } else if (keyIsPressed && keyCode == 65) {
+      //LEFT
       this.previousDirection = "left";
       this.x -= placement;
       this.frameY = 1;
       this.maxFrame = 4;
     } else if (keyIsPressed && keyCode == 87) {
+      //UP
       this.maxFrame = 4;
       this.frameTimer = this.frameTimer;
 
@@ -350,13 +397,13 @@ class Player2 {
       if (this.previousDirection === "right") {
         //this.vy -= 2; //velocity on 20, meaning that when jumping up the speed goes from 20->0 and when he falls down again it goes from 0->20
         this.frameY = 2;
-        this.frameX = 0;
+        this.frameX = 2;
         //this.frameTimer = 0;
         this.x += placement / 2;
       } else if (this.previousDirection === "left") {
         //this.vy -= 2; //velocity on 20, meaning that when jumping up the speed goes from 20->0 and when he falls down again it goes from 0->20
         this.frameY = 3;
-        this.frameX = 4;
+        this.frameX = 2;
         // this.frameTimer = 0;
         this.x -= placement / 2;
       }
@@ -364,23 +411,21 @@ class Player2 {
     if (!keyIsPressed) {
       this.frameX = 0;
       this.frameTimer = 0;
-      // this.frameY = 4;
-    }
-    this.y += this.vy; //velocity when jumping.
-    //if the player is not on the ground...
-    if (!this.onGround()) {
-      this.vy += this.weight; //simulates gravity
-      this.maxFrame = 4;
-    } else {
-      this.vy = 0;
-      this.maxFrame = 0;
-      //make the player land on ground with running sprite
+      this.frameY = 4;
       if (this.previousDirection === "right") {
         this.frameY = 4;
       }
       if (this.previousDirection === "left") {
         this.frameY = 5;
       }
+    }
+    this.y += this.vy; //velocity when jumping.
+    //if the player is not on the ground...
+    if (!this.onGround()) {
+      this.vy += this.weight; //simulates gravity
+    } else {
+      this.vy = 0;
+      this.maxFrame = 4;
     }
 
     //CANT RUN OR JUMP OUTSIDE CANVAS
@@ -645,6 +690,7 @@ function mousePressed() {
     screen = "start screen"; // Go back to the start screen
     setup();
   }
+
   if (
     screen === "result screen" &&
     mouseX > 250 &&
@@ -714,8 +760,6 @@ let cloudY2 = 80;
 function draw() {
   if (screen === "start screen") {
     startScreen();
-    player2.draw();
-    player2.update();
     gifY = gifY + cloudSpeed;
     if (gifY > canvasHeight - 610 || gifY < -35) {
       cloudSpeed = -cloudSpeed;
