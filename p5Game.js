@@ -5,8 +5,8 @@ let backgroundimg;
 let startimg;
 let controlimg;
 let twoPlayerImg;
-let onePlayer = true;
-let twoPlayers = false;
+let onePlayer;
+let twoPlayers;
 let meatballsGIF;
 let gifX = 0;
 let gifY = -30;
@@ -20,11 +20,15 @@ let gameHeight;
 let gameWidth;
 let pauseGame;
 let player;
+let player2;
 
 let log;
 let dx1;
 let dy1;
 let distance1;
+let dx1_2;
+let dy1_2;
+let distance1_2;
 let playerRadius;
 let logRadius;
 let totalRadius;
@@ -41,6 +45,9 @@ let timer = 1; //for time when meatball touches the ground
 let dx2;
 let dy2;
 let distance2;
+let dx2_2;
+let dy2_2;
+let distance2_2;
 let meatballTimer = 0;
 let meatballInterval = 1000;
 let randomMeatballInterval = Math.random() * 1000 + 500;
@@ -55,6 +62,9 @@ let r = Math.floor(Math.random() * food.length);
 let dx3;
 let dy3;
 let distance3;
+let dx3_2;
+let dy3_2;
+let distance3_2;
 
 function preload() {
   //for start screen
@@ -154,8 +164,8 @@ function controlScreen() {
   fill(0);
   textSize(14);
   textFont("verdana");
-  text("player one", 183, 320);
-  text("player two", 353, 320);
+  text("one player", 183, 320);
+  text("two players", 351, 320);
   pop();
 
   if (
@@ -327,7 +337,6 @@ class Player {
 }
 
 class Player2 {
-  //sprite code, learnt from this tutorial https://www.youtube.com/watch?v=7JtLHJbm0kA&t=1675s
   constructor(gameWidth, gameHeight) {
     this.gameWidth = gameWidth;
     this.gameHeight = gameHeight;
@@ -583,27 +592,37 @@ function reloadGameScreen() {
   score = 0;
 }
 
-function collision(player, player2, log, meatball, food) {
-  //COLLISION WITH LOGS
+function collision(player, player2, log, coins, minusCoins) {
+  //player one
   let pRectX = player.x + 367;
   let pRectY = player.y - 50;
   let pRectWidth = player.imgWidth - 230;
   let pRectHeight = player.imgHeight - 30;
 
+  //player two-steve
+  let p2RectX = player2.x + 330;
+  let p2RectY = player2.y + 40;
+  let p2RectWidth = player2.imgWidth - 170;
+  let p2RectHeight = player2.imgHeight - 130;
+
+  //logs
   let lRectX = log.x + 75;
   let lRectY = log.y + 40;
   let lRectWidth = log.imgWidth - 230;
   let lRectHeight = log.imgHeight - 140;
+
   /*push();
   stroke(50);
   fill("rgba(0,0,0,0)");
-  rect(pRectX, pRectY, pRectWidth, pRectHeight);
+  rect(pRectX, pRectY, pRectWidth, pRectHeight);  stroke(50);
+  fill("rgba(0,0,0,0)");
+  rect(p2RectX, p2RectY, p2RectWidth, p2RectHeight);
   stroke(50);
   fill("rgba(0,0,0,0)");
   rect(lRectX, lRectY, lRectWidth, lRectHeight);
   pop();*/
 
-  //LOGS
+  //--- COLLISION WITH LOGS---
   const dx1 = lRectX + lRectWidth / 2 - (pRectX + pRectWidth / 2);
   const dy1 = lRectY + lRectHeight / 2 - (pRectY + pRectHeight / 2);
   const distance1 = Math.sqrt(dx1 * dx1 + dy1 * dy1);
@@ -611,13 +630,31 @@ function collision(player, player2, log, meatball, food) {
     gameOver = true;
   }
 
-  //COLLISION WITH MEATBALLS
+  //player two-steve
+  const dx1_2 = lRectX + lRectWidth / 2 - (p2RectX + p2RectWidth / 2);
+  const dy1_2 = lRectY + lRectHeight / 2 - (p2RectY + p2RectHeight / 2);
+  const distance1_2 = Math.sqrt(dx1_2 * dx1_2 + dy1_2 * dy1_2);
+  if (distance1_2 < lRectHeight / 2 + p2RectHeight / 2) {
+    gameOver = true;
+  }
+
+  //---COLLISION WITH MEATBALLS---
   coins.forEach((meatball) => {
     const dx2 = pRectX + pRectWidth / 2 - (meatball.x + meatball.imgWidth / 2);
     const dy2 =
       pRectY + pRectHeight / 2 - (meatball.y + meatball.imgHeight / 2);
     const distance2 = Math.sqrt(dx2 * dx2 + dy2 * dy2); //the distance2 between those center points
     if (distance2 < meatball.imgHeight / 2 + pRectHeight / 2) {
+      score++;
+      coins.splice(0, 1);
+    }
+    //player two-steve
+    const dx2_2 =
+      p2RectX + p2RectWidth / 2 - (meatball.x + meatball.imgWidth / 2);
+    const dy2_2 =
+      p2RectY + p2RectHeight / 2 - (meatball.y + meatball.imgHeight / 2);
+    const distance2_2 = Math.sqrt(dx2_2 * dx2_2 + dy2_2 * dy2_2); //the distance2 between those center points
+    if (distance2_2 < meatball.imgHeight / 2 + p2RectHeight / 2) {
       score++;
       coins.splice(0, 1);
     }
@@ -630,13 +667,23 @@ function collision(player, player2, log, meatball, food) {
         minusCoins.splice(i, 1);
       }
     }
-    //COLLISION WITH FOOD
+    //---COLLISION WITH ROTTEN FOOD---
     const dx3 =
       pRectX + pRectWidth / 2 - (food.x + 20 + (food.imgWidth - 40) / 2);
     const dy3 =
       pRectY + pRectHeight / 2 - (food.y + 15 + (food.imgHeight - 30) / 2);
     const distance3 = Math.sqrt(dx3 * dx3 + dy3 * dy3);
     if (distance3 < (food.imgHeight - 30) / 2 + pRectHeight / 2) {
+      score--;
+      minusCoins.splice(i, 1);
+    }
+    //player two-steve
+    const dx3_2 =
+      p2RectX + p2RectWidth / 2 - (food.x + 20 + (food.imgWidth - 40) / 2);
+    const dy3_2 =
+      p2RectY + p2RectHeight / 2 - (food.y + 15 + (food.imgHeight - 30) / 2);
+    const distance3_2 = Math.sqrt(dx3_2 * dx3_2 + dy3_2 * dy3_2);
+    if (distance3_2 < (food.imgHeight - 30) / 2 + p2RectHeight / 2) {
       score--;
       minusCoins.splice(i, 1);
     }
@@ -727,11 +774,15 @@ function mousePressed() {
 }
 
 function animate() {
-  for (let i = 0; i < coins.length; i++) {
-    collision(player, logs, coins[i], minusCoins[i]); // Check collision
-  }
+  /*for (let i = 0; i < coins.length; i++) {
+    collision(player, player2, logs, coins[i], minusCoins[i]); // Check collision
+  }*/
   player.update();
   player.draw();
+  if (twoPlayers === true) {
+    player2.draw();
+    player2.update();
+  }
   logs.draw();
   logs.update();
 
@@ -768,6 +819,8 @@ function draw() {
     gameScreen();
     if (!gameOver) {
       animate(0);
+      collision(player, player2, logs, coins, minusCoins); // Check collision
+
       //meatball
       if (score % 5 === 0) {
         timerSpeed += 0.01;
@@ -786,7 +839,7 @@ function draw() {
       } else {
         rottenTimer += deltaTime; //creates more rotten food
       }
-      //CLOUDS
+      //clouds
       clouds(cloudX1, cloudY1);
       clouds(cloudX2, cloudY2);
       cloudX1 += cloudSpeed1;
@@ -802,7 +855,7 @@ function draw() {
     }
   } else if (screen === "controls screen") {
     controlScreen();
-  } else if (screen === "result screen") {
+  } else if (gameOver === true && screen === "result screen") {
     resultScreen();
   }
 }
