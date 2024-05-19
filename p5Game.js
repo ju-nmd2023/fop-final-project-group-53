@@ -21,6 +21,7 @@ let gameWidth;
 let pauseGame;
 let player;
 let player2;
+let keys = {};
 
 let log;
 let dx1;
@@ -103,6 +104,15 @@ function setup() {
   button2.mousePressed(controlScreen);
 }
 
+//How to be able to press multiple keys at the same time, got help from: https://chatgpt.com/?oai-dm=1
+function keyPressed() {
+  keys[keyCode] = true; // When a key is pressed, set its value in the keys object to true
+}
+
+function keyReleased() {
+  keys[keyCode] = false; // When a key is released, set its value in the keys object to false
+}
+
 function clouds(x, y) {
   //CLOUDS
   push();
@@ -131,7 +141,7 @@ function startScreen() {
 
 function controlScreen() {
   clear();
-  //background(controlimg);
+  background(controlimg);
   screen = "controls screen";
   if (onePlayer === true) {
     background(controlimg);
@@ -168,25 +178,6 @@ function controlScreen() {
   text("two players", 351, 320);
   pop();
 
-  if (
-    mousePressed &&
-    mouseX > 170 &&
-    mouseX < 270 &&
-    mouseY > 300 &&
-    mouseY < 330
-  ) {
-    onePlayer = true;
-    twoPlayers = false;
-  } else if (
-    mousePressed &&
-    mouseX > 340 &&
-    mouseX < 440 &&
-    mouseY > 300 &&
-    mouseY < 330
-  ) {
-    onePlayer = false;
-    twoPlayers = true;
-  }
   button.remove();
   button2.remove();
 }
@@ -197,17 +188,21 @@ function gameScreen() {
   background(backgroundimg);
   button.remove();
   button2.remove();
-  push();
+
   //SCORE
+  push();
   textSize(16);
+  fill(0);
   text("SCORE: " + score, 25, 37);
+  pop();
+
   //PAUSE BUTTON
+  push();
   noStroke();
   fill(200, 200, 250);
   ellipse(555, 35, 30, 30);
   fill("black");
   pop();
-
   if (!pauseGame) {
     push();
     noStroke();
@@ -276,17 +271,17 @@ class Player {
     }
     //CONTROLS
     let placement = this.speed * deltaTime; //deltatime calculates the amount of time it took draw() to execute each frame of the sprite img.
-    if (keyIsPressed && keyCode == RIGHT_ARROW) {
+    if (keys[RIGHT_ARROW]) {
       this.x += placement;
       this.frameY = 0;
       this.maxFrame = 9;
       this.previousDirection = "right";
-    } else if (keyIsPressed && keyCode == LEFT_ARROW) {
+    } else if (keys[LEFT_ARROW]) {
       this.x -= placement;
       this.frameY = 1;
       this.maxFrame = 9;
       this.previousDirection = "left";
-    } else if (keyIsPressed && keyCode == UP_ARROW) {
+    } else if (keys[UP_ARROW]) {
       this.maxFrame = 6;
       this.y = this.y - 25; //highness of the jump
       // got help with writing previous direction detection code from https://chatgpt.com/c/5b563428-b8d0-44be-b4b3-cc8fcd2e7562
@@ -299,7 +294,7 @@ class Player {
         this.frameY = 3;
         this.x -= placement / 2;
       }
-    } else if (!keyIsPressed) {
+    } else if (!keys[RIGHT_ARROW] && !keys[LEFT_ARROW] && !keys[UP_ARROW]) {
       this.frameTimer = 0;
       this.frameX = 0;
     }
@@ -385,19 +380,19 @@ class Player2 {
     }
     //CONTROLS
     let placement = this.speed * deltaTime; //deltatime calculates the amount of time it took draw() to execute each frame of the sprite img.
-    if (keyIsPressed && keyCode == 68) {
+    if (keys[68]) {
       //RIGHT
       this.previousDirection = "right";
       this.x += placement;
       this.frameY = 0;
       this.maxFrame = 4;
-    } else if (keyIsPressed && keyCode == 65) {
+    } else if (keys[65]) {
       //LEFT
       this.previousDirection = "left";
       this.x -= placement;
       this.frameY = 1;
       this.maxFrame = 4;
-    } else if (keyIsPressed && keyCode == 87) {
+    } else if (keys[87]) {
       //UP
       this.maxFrame = 4;
       this.frameTimer = this.frameTimer;
@@ -417,7 +412,7 @@ class Player2 {
         this.x -= placement / 2;
       }
     }
-    if (!keyIsPressed) {
+    if (!keys[68] && !keys[65] && !keys[87]) {
       this.frameX = 0;
       this.frameTimer = 0;
       this.frameY = 4;
@@ -592,7 +587,7 @@ function reloadGameScreen() {
   score = 0;
 }
 
-function collision(player, player2, log, coins, minusCoins) {
+function collision(player, player2, log, meatball, food) {
   //player one
   let pRectX = player.x + 367;
   let pRectY = player.y - 50;
@@ -639,14 +634,14 @@ function collision(player, player2, log, coins, minusCoins) {
   }
 
   //---COLLISION WITH MEATBALLS---
-  coins.forEach((meatball) => {
+  coins.forEach((meatball, i) => {
     const dx2 = pRectX + pRectWidth / 2 - (meatball.x + meatball.imgWidth / 2);
     const dy2 =
       pRectY + pRectHeight / 2 - (meatball.y + meatball.imgHeight / 2);
     const distance2 = Math.sqrt(dx2 * dx2 + dy2 * dy2); //the distance2 between those center points
     if (distance2 < meatball.imgHeight / 2 + pRectHeight / 2) {
       score++;
-      coins.splice(0, 1);
+      coins.splice(i, 1);
     }
     //player two-steve
     const dx2_2 =
@@ -656,7 +651,7 @@ function collision(player, player2, log, coins, minusCoins) {
     const distance2_2 = Math.sqrt(dx2_2 * dx2_2 + dy2_2 * dy2_2); //the distance2 between those center points
     if (distance2_2 < meatball.imgHeight / 2 + p2RectHeight / 2) {
       score++;
-      coins.splice(0, 1);
+      coins.splice(i, 1);
     }
   });
 
@@ -699,6 +694,7 @@ function resultScreen() {
   textSize(18);
   textStyle(BOLD);
   textAlign(CENTER);
+  fill(0);
   text("SCORE: " + score, canvasWidth / 2, 255);
   //SCOREBOARD
   textSize(18);
@@ -712,6 +708,7 @@ function resultScreen() {
   push();
   textSize(18);
   textAlign(CENTER);
+  fill(0);
   text("Play Again", canvasWidth / 2, 540);
   //BACK TO START BUTTON
 
@@ -727,6 +724,15 @@ function resultScreen() {
 }
 
 function mousePressed() {
+  if (screen === "controls screen") {
+    if (mouseX > 170 && mouseX < 270 && mouseY > 300 && mouseY < 330) {
+      onePlayer = true;
+      twoPlayers = false;
+    } else if (mouseX > 340 && mouseX < 440 && mouseY > 300 && mouseY < 330) {
+      onePlayer = false;
+      twoPlayers = true;
+    }
+  }
   if (
     screen === "controls screen" &&
     mouseX > 26 &&
@@ -777,25 +783,36 @@ function animate() {
   /*for (let i = 0; i < coins.length; i++) {
     collision(player, player2, logs, coins[i], minusCoins[i]); // Check collision
   }*/
-  player.update();
-  player.draw();
-  if (twoPlayers === true) {
-    player2.draw();
-    player2.update();
+
+  //meatball
+  if (score % 5 === 0) {
+    timerSpeed += 0.01;
   }
-  logs.draw();
-  logs.update();
-
-  coins.forEach((meatball) => {
-    meatball.draw();
-    meatball.update();
-  });
-
-  //ROTTEN FOOD
-  minusCoins.forEach((food) => {
-    food.draw();
-    food.update();
-  });
+  if (meatballTimer > meatballInterval + randomMeatballInterval) {
+    coins.push(new Meatball(canvasWidth, canvasHeight));
+    meatballTimer = 0;
+  } else {
+    meatballTimer += deltaTime * timerSpeed; //creates more meatballs
+  }
+  //rotten food
+  if (rottenTimer > rottenInterval + randomRottenInterval) {
+    minusCoins.push(new Rotten(canvasWidth, canvasHeight));
+    rottenTimer = 0;
+    randomRottenInterval = Math.random() * 1000 + 500;
+  } else {
+    rottenTimer += deltaTime; //creates more rotten food
+  }
+  //clouds
+  clouds(cloudX1, cloudY1);
+  clouds(cloudX2, cloudY2);
+  cloudX1 += cloudSpeed1;
+  cloudX2 += cloudSpeed2;
+  if (cloudX1 < -170) {
+    cloudX1 = 600;
+  }
+  if (cloudX2 < -170) {
+    cloudX2 = 600;
+  }
 }
 
 //got help with timerSpeed code from https://chatgpt.com/c/38c0759d-0e54-4e36-9bcd-6c0aabe86a71
@@ -815,47 +832,35 @@ function draw() {
     if (gifY > canvasHeight - 610 || gifY < -35) {
       cloudSpeed = -cloudSpeed;
     }
-  } else if (screen === "game screen") {
-    gameScreen();
-    if (!gameOver) {
-      animate(0);
-      collision(player, player2, logs, coins, minusCoins); // Check collision
-
-      //meatball
-      if (score % 5 === 0) {
-        timerSpeed += 0.01;
-      }
-      if (meatballTimer > meatballInterval + randomMeatballInterval) {
-        coins.push(new Meatball(canvasWidth, canvasHeight));
-        meatballTimer = 0;
-      } else {
-        meatballTimer += deltaTime * timerSpeed; //creates more meatballs
-      }
-      //rotten food
-      if (rottenTimer > rottenInterval + randomRottenInterval) {
-        minusCoins.push(new Rotten(canvasWidth, canvasHeight));
-        rottenTimer = 0;
-        randomRottenInterval = Math.random() * 1000 + 500;
-      } else {
-        rottenTimer += deltaTime; //creates more rotten food
-      }
-      //clouds
-      clouds(cloudX1, cloudY1);
-      clouds(cloudX2, cloudY2);
-      cloudX1 += cloudSpeed1;
-      cloudX2 += cloudSpeed2;
-      if (cloudX1 < -170) {
-        cloudX1 = 600;
-      }
-      if (cloudX2 < -170) {
-        cloudX2 = 600;
-      }
-    } else {
-      resultScreen();
-    }
-  } else if (screen === "controls screen") {
+  }
+  if (screen === "controls screen") {
     controlScreen();
-  } else if (gameOver === true && screen === "result screen") {
+  }
+  if (screen === "game screen" && !gameOver) {
+    gameScreen();
+    animate();
+    player.update();
+    player.draw();
+    if (twoPlayers === true) {
+      player2.draw();
+      player2.update();
+    }
+    logs.draw();
+    logs.update();
+
+    coins.forEach((meatball) => {
+      meatball.draw();
+      meatball.update();
+    });
+
+    //ROTTEN FOOD
+    minusCoins.forEach((food) => {
+      food.draw();
+      food.update();
+    });
+
+    collision(player, player2, logs, coins, minusCoins); // Check collision
+  } else if (gameOver === true || screen === "result screen") {
     resultScreen();
   }
 }
