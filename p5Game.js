@@ -1,3 +1,4 @@
+let canvas;
 let canvasWidth = 600;
 let canvasHeight = 600;
 let gameOver = false;
@@ -87,19 +88,21 @@ function preload() {
 }
 
 function setup() {
-  createCanvas(canvasWidth, canvasHeight);
+  const canvas = createCanvas(canvasWidth, canvasHeight);
+  canvas.parent("canvasForHTML");
   frameRate(30);
   startScreen();
   textFont("Times New Roman");
   reloadGameScreen();
 
-  //Play Button
+  //Start Game Button
   button = createButton("Start Game");
-  button.position(180, 435);
+  button.position(canvasWidth * 0.2833, canvasHeight * 0.725);
   button.size(110, 34);
   button.mousePressed(gameScreen);
+  //Controls Button
   button2 = createButton("Controls");
-  button2.position(350, 435);
+  button2.position(canvasWidth * 0.533, canvasHeight * 0.725);
   button2.size(110, 34);
   button2.mousePressed(controlScreen);
 }
@@ -587,102 +590,20 @@ function reloadGameScreen() {
   score = 0;
 }
 
-function collision(player, player2, log, meatball, food) {
-  //player one
-  let pRectX = player.x + 367;
-  let pRectY = player.y - 50;
-  let pRectWidth = player.imgWidth - 230;
-  let pRectHeight = player.imgHeight - 30;
+//localStorage.setItem('key', 'value')
+//localStorage.setItem('highscores', 'scores')
 
-  //player two-steve
-  let p2RectX = player2.x + 330;
-  let p2RectY = player2.y + 40;
-  let p2RectWidth = player2.imgWidth - 170;
-  let p2RectHeight = player2.imgHeight - 130;
-
-  //logs
-  let lRectX = log.x + 75;
-  let lRectY = log.y + 40;
-  let lRectWidth = log.imgWidth - 230;
-  let lRectHeight = log.imgHeight - 140;
-
-  /*push();
-  stroke(50);
-  fill("rgba(0,0,0,0)");
-  rect(pRectX, pRectY, pRectWidth, pRectHeight);  stroke(50);
-  fill("rgba(0,0,0,0)");
-  rect(p2RectX, p2RectY, p2RectWidth, p2RectHeight);
-  stroke(50);
-  fill("rgba(0,0,0,0)");
-  rect(lRectX, lRectY, lRectWidth, lRectHeight);
-  pop();*/
-
-  //--- COLLISION WITH LOGS---
-  const dx1 = lRectX + lRectWidth / 2 - (pRectX + pRectWidth / 2);
-  const dy1 = lRectY + lRectHeight / 2 - (pRectY + pRectHeight / 2);
-  const distance1 = Math.sqrt(dx1 * dx1 + dy1 * dy1);
-  if (distance1 < lRectHeight / 2 + pRectHeight / 2) {
-    gameOver = true;
+//get highscore from localstorage
+function getHighscores() {
+  let scores = JSON.parse(localStorage.getItem("highscores")); //convert the string from localstorage back to the object
+  if (!scores) {
+    scores = { first: 0, second: 0, third: 0 };
   }
+}
 
-  //player two-steve
-  const dx1_2 = lRectX + lRectWidth / 2 - (p2RectX + p2RectWidth / 2);
-  const dy1_2 = lRectY + lRectHeight / 2 - (p2RectY + p2RectHeight / 2);
-  const distance1_2 = Math.sqrt(dx1_2 * dx1_2 + dy1_2 * dy1_2);
-  if (distance1_2 < lRectHeight / 2 + p2RectHeight / 2) {
-    gameOver = true;
-  }
-
-  //---COLLISION WITH MEATBALLS---
-  coins.forEach((meatball, i) => {
-    const dx2 = pRectX + pRectWidth / 2 - (meatball.x + meatball.imgWidth / 2);
-    const dy2 =
-      pRectY + pRectHeight / 2 - (meatball.y + meatball.imgHeight / 2);
-    const distance2 = Math.sqrt(dx2 * dx2 + dy2 * dy2); //the distance2 between those center points
-    if (distance2 < meatball.imgHeight / 2 + pRectHeight / 2) {
-      score++;
-      coins.splice(i, 1);
-    }
-    //player two-steve
-    const dx2_2 =
-      p2RectX + p2RectWidth / 2 - (meatball.x + meatball.imgWidth / 2);
-    const dy2_2 =
-      p2RectY + p2RectHeight / 2 - (meatball.y + meatball.imgHeight / 2);
-    const distance2_2 = Math.sqrt(dx2_2 * dx2_2 + dy2_2 * dy2_2); //the distance2 between those center points
-    if (distance2_2 < meatball.imgHeight / 2 + p2RectHeight / 2) {
-      score++;
-      coins.splice(i, 1);
-    }
-  });
-
-  minusCoins.forEach((food, i) => {
-    //FOOD TOUCHES THE GROUND
-    if (food.y > 490) {
-      for (i = 0; i < 5; i++) {
-        minusCoins.splice(i, 1);
-      }
-    }
-    //---COLLISION WITH ROTTEN FOOD---
-    const dx3 =
-      pRectX + pRectWidth / 2 - (food.x + 20 + (food.imgWidth - 40) / 2);
-    const dy3 =
-      pRectY + pRectHeight / 2 - (food.y + 15 + (food.imgHeight - 30) / 2);
-    const distance3 = Math.sqrt(dx3 * dx3 + dy3 * dy3);
-    if (distance3 < (food.imgHeight - 30) / 2 + pRectHeight / 2) {
-      score--;
-      minusCoins.splice(i, 1);
-    }
-    //player two-steve
-    const dx3_2 =
-      p2RectX + p2RectWidth / 2 - (food.x + 20 + (food.imgWidth - 40) / 2);
-    const dy3_2 =
-      p2RectY + p2RectHeight / 2 - (food.y + 15 + (food.imgHeight - 30) / 2);
-    const distance3_2 = Math.sqrt(dx3_2 * dx3_2 + dy3_2 * dy3_2);
-    if (distance3_2 < (food.imgHeight - 30) / 2 + p2RectHeight / 2) {
-      score--;
-      minusCoins.splice(i, 1);
-    }
-  });
+//update scores in localstorage(scoreboard)
+function updateHighScores() {
+  let scores = getHighscores();
 }
 
 function resultScreen() {
@@ -696,13 +617,7 @@ function resultScreen() {
   textAlign(CENTER);
   fill(0);
   text("SCORE: " + score, canvasWidth / 2, 255);
-  //SCOREBOARD
-  textSize(18);
-  textStyle(BOLD);
-  textAlign(RIGHT);
-  text(firstPlace + " p", canvasWidth / 2 + 70, 345);
-  text(secondPlace + " p", canvasWidth / 2 + 70, 400);
-  text(thirdPlace + " p", canvasWidth / 2 + 70, 452);
+
   pop();
   //PLAY AGAIN BUTTON
   push();
@@ -721,9 +636,42 @@ function resultScreen() {
   pop();
   button.remove();
   button2.remove();
+
+  //highscores
+  /* 
+  push();
+  textSize(18);
+  textStyle(BOLD);
+  textAlign(RIGHT);
+  text(firstPlace + " p", canvasWidth / 2 + 70, 345);
+  text(secondPlace + " p", canvasWidth / 2 + 70, 400);
+  text(thirdPlace + " p", canvasWidth / 2 + 70, 452);
+  pop();*/
 }
 
 function mousePressed() {
+  /*if (
+    screen === "start screen" &&
+    mouseX > 170 &&
+    mouseX < 280 &&
+    mouseY > 435 &&
+    mouseY < 470
+  ) {
+    screen = "game screen"; // Run game again
+    reloadGameScreen();
+    gameOver = false;
+  }
+  if (
+    screen === "start screen" &&
+    mouseX > 320 &&
+    mouseX < 430 &&
+    mouseY > 435 &&
+    mouseY < 470
+  ) {
+    screen = "controls screen";
+    controlScreen();
+  }*/
+
   if (screen === "controls screen") {
     if (mouseX > 170 && mouseX < 270 && mouseY > 300 && mouseY < 330) {
       onePlayer = true;
@@ -779,11 +727,114 @@ function mousePressed() {
   }
 }
 
-function animate() {
-  /*for (let i = 0; i < coins.length; i++) {
-    collision(player, player2, logs, coins[i], minusCoins[i]); // Check collision
-  }*/
+function collision(player, player2, log, meatball, food) {
+  //player one
+  let pRectX = player.x + 367;
+  let pRectY = player.y - 50;
+  let pRectWidth = player.imgWidth - 230;
+  let pRectHeight = player.imgHeight - 30;
 
+  //player two-steve
+  let p2RectX = player2.x + 330;
+  let p2RectY = player2.y + 40;
+  let p2RectWidth = player2.imgWidth - 170;
+  let p2RectHeight = player2.imgHeight - 130;
+
+  //logs
+  let lRectX = log.x + 75;
+  let lRectY = log.y + 40;
+  let lRectWidth = log.imgWidth - 230;
+  let lRectHeight = log.imgHeight - 140;
+
+  /*push();
+  stroke(50);
+  fill("rgba(0,0,0,0)");
+  rect(pRectX, pRectY, pRectWidth, pRectHeight);  stroke(50);
+  fill("rgba(0,0,0,0)");
+  rect(p2RectX, p2RectY, p2RectWidth, p2RectHeight);
+  stroke(50);
+  fill("rgba(0,0,0,0)");
+  rect(lRectX, lRectY, lRectWidth, lRectHeight);
+  pop();*/
+
+  //--- COLLISION WITH LOGS---
+  const dx1 = lRectX + lRectWidth / 2 - (pRectX + pRectWidth / 2);
+  const dy1 = lRectY + lRectHeight / 2 - (pRectY + pRectHeight / 2);
+  const distance1 = Math.sqrt(dx1 * dx1 + dy1 * dy1);
+  if (distance1 < lRectHeight / 2 + pRectHeight / 2) {
+    gameOver = true;
+  }
+
+  if (twoPlayers) {
+    //player two-steve
+    const dx1_2 = lRectX + lRectWidth / 2 - (p2RectX + p2RectWidth / 2);
+    const dy1_2 = lRectY + lRectHeight / 2 - (p2RectY + p2RectHeight / 2);
+    const distance1_2 = Math.sqrt(dx1_2 * dx1_2 + dy1_2 * dy1_2);
+    if (distance1_2 < lRectHeight / 2 + p2RectHeight / 2) {
+      gameOver = true;
+    }
+  }
+
+  //---COLLISION WITH MEATBALLS---
+  coins.forEach((meatball, i) => {
+    const dx2 = pRectX + pRectWidth / 2 - (meatball.x + meatball.imgWidth / 2);
+    const dy2 =
+      pRectY + pRectHeight / 2 - (meatball.y + meatball.imgHeight / 2);
+    const distance2 = Math.sqrt(dx2 * dx2 + dy2 * dy2); //the distance2 between those center points
+    if (distance2 < meatball.imgHeight / 2 + pRectHeight / 2) {
+      score++;
+      coins.splice(i, 1);
+    }
+
+    if (twoPlayers) {
+      //player two-steve
+      const dx2_2 =
+        p2RectX + p2RectWidth / 2 - (meatball.x + meatball.imgWidth / 2);
+      const dy2_2 =
+        p2RectY + p2RectHeight / 2 - (meatball.y + meatball.imgHeight / 2);
+      const distance2_2 = Math.sqrt(dx2_2 * dx2_2 + dy2_2 * dy2_2); //the distance2 between those center points
+      if (distance2_2 < meatball.imgHeight / 2 + p2RectHeight / 2) {
+        score++;
+        coins.splice(i, 1);
+      }
+    }
+  });
+
+  //---COLLISION WITH ROTTEN FOOD---
+  minusCoins.forEach((food, i) => {
+    //food touches the ground
+    if (food.y > 490) {
+      for (i = 0; i < 5; i++) {
+        minusCoins.splice(i, 1);
+      }
+    }
+    //collision between player and rotten food
+    const dx3 =
+      pRectX + pRectWidth / 2 - (food.x + 20 + (food.imgWidth - 40) / 2);
+    const dy3 =
+      pRectY + pRectHeight / 2 - (food.y + 15 + (food.imgHeight - 30) / 2);
+    const distance3 = Math.sqrt(dx3 * dx3 + dy3 * dy3);
+    if (distance3 < (food.imgHeight - 30) / 2 + pRectHeight / 2) {
+      score--;
+      minusCoins.splice(i, 1);
+    }
+
+    if (twoPlayers) {
+      //player two-steve
+      const dx3_2 =
+        p2RectX + p2RectWidth / 2 - (food.x + 20 + (food.imgWidth - 40) / 2);
+      const dy3_2 =
+        p2RectY + p2RectHeight / 2 - (food.y + 15 + (food.imgHeight - 30) / 2);
+      const distance3_2 = Math.sqrt(dx3_2 * dx3_2 + dy3_2 * dy3_2);
+      if (distance3_2 < (food.imgHeight - 30) / 2 + p2RectHeight / 2) {
+        score--;
+        minusCoins.splice(i, 1);
+      }
+    }
+  });
+}
+
+function animate() {
   //meatball
   if (score % 5 === 0) {
     timerSpeed += 0.01;
