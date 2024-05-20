@@ -35,3 +35,14 @@ button {
   font-size: 18px;
   color: rgb(36, 36, 36);
 }
+
+.addHighscore {
+  display: flex;
+  position: absolute;
+  margin-top: 17em;
+  margin-left: 12.5em;
+}
+.add {
+  margin-left: 0;
+  margin-top: 0;
+}

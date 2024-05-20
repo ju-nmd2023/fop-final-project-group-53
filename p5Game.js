@@ -40,6 +40,9 @@ let meatballimg;
 let meatball;
 let coins = [];
 let score = 0;
+let currentScore;
+//let scoreResult;
+let scores = [];
 let firstPlace = 0;
 let secondPlace = 0;
 let thirdPlace = 0;
@@ -94,6 +97,9 @@ function setup() {
   startScreen();
   textFont("Times New Roman");
   reloadGameScreen();
+
+  //get highscores from localstorage
+  getHighscores();
 
   //Start Game Button
   button = createButton("Start Game");
@@ -222,6 +228,76 @@ function gameScreen() {
     line(551, 43, 551, 27);
     pop();
   }
+}
+
+//get highscore from localstorage
+function getHighscores() {
+  const scoresFromLocalStorage = localStorage.getItem("highscores");
+  if (scoresFromLocalStorage) {
+    //if we get the item from localstorage, we want to convert the item in scores[] that now are a string back to an array
+    scores = JSON.parse(scoresFromLocalStorage);
+  } else {
+    scores = [];
+  }
+}
+
+//update scores in localstorage(scoreboard)
+function updateHighScores() {
+  //let currentScore = score;
+
+  scores.push(score);
+  scores = [...new Set(scores)];
+  /*scores.sort(function (a, b) {
+    return b.score - a.score;
+  });*/
+  scores.sort((a, b) => b - a);
+  if (scores.length > 3) {
+    //scores.pop(); //to only keep 3 scores in the array
+    scores = scores.slice(0, 3);
+  }
+  localStorage.setItem("highscores", JSON.stringify(scores));
+}
+
+function resultScreen() {
+  clear();
+  screen = "result screen";
+  //noLoop();
+  //let currentScore = score;
+  background(resultimg);
+
+  //PLAY AGAIN BUTTON
+  push();
+  textSize(18);
+  textAlign(CENTER);
+  fill(0);
+  text("Play Again", canvasWidth / 2, 540);
+  //BACK TO START BUTTON
+  noStroke();
+  fill(210, 210, 250);
+  rect(26, 30, 80, 30);
+  fill("black");
+  textSize(18);
+  text("quit", 65, 50);
+  pop();
+
+  //SCORE
+  push();
+  textSize(18);
+  textStyle(BOLD);
+  textAlign(CENTER);
+  fill(0);
+  text("SCORE: " + score, canvasWidth / 2, 255);
+  console.log(score);
+  // Display top 3 scores
+  for (let i = 0; i < 3; i++) {
+    text(scores[i] + "p", canvasWidth / 2 + 45, 343 + i * 56);
+  }
+  pop();
+
+  updateHighScores();
+
+  button.remove();
+  button2.remove();
 }
 
 class Player {
@@ -590,65 +666,6 @@ function reloadGameScreen() {
   score = 0;
 }
 
-//localStorage.setItem('key', 'value')
-//localStorage.setItem('highscores', 'scores')
-
-//get highscore from localstorage
-function getHighscores() {
-  let scores = JSON.parse(localStorage.getItem("highscores")); //convert the string from localstorage back to the object
-  if (!scores) {
-    scores = { first: 0, second: 0, third: 0 };
-  }
-}
-
-//update scores in localstorage(scoreboard)
-function updateHighScores() {
-  let scores = getHighscores();
-}
-
-function resultScreen() {
-  clear();
-  screen = "result screen";
-  background(resultimg);
-  push();
-  //SCORE
-  textSize(18);
-  textStyle(BOLD);
-  textAlign(CENTER);
-  fill(0);
-  text("SCORE: " + score, canvasWidth / 2, 255);
-
-  pop();
-  //PLAY AGAIN BUTTON
-  push();
-  textSize(18);
-  textAlign(CENTER);
-  fill(0);
-  text("Play Again", canvasWidth / 2, 540);
-  //BACK TO START BUTTON
-
-  noStroke();
-  fill(210, 210, 250);
-  rect(26, 30, 80, 30);
-  fill("black");
-  textSize(18);
-  text("quit", 65, 50);
-  pop();
-  button.remove();
-  button2.remove();
-
-  //highscores
-  /* 
-  push();
-  textSize(18);
-  textStyle(BOLD);
-  textAlign(RIGHT);
-  text(firstPlace + " p", canvasWidth / 2 + 70, 345);
-  text(secondPlace + " p", canvasWidth / 2 + 70, 400);
-  text(thirdPlace + " p", canvasWidth / 2 + 70, 452);
-  pop();*/
-}
-
 function mousePressed() {
   /*if (
     screen === "start screen" &&
@@ -782,8 +799,10 @@ function collision(player, player2, log, meatball, food) {
       pRectY + pRectHeight / 2 - (meatball.y + meatball.imgHeight / 2);
     const distance2 = Math.sqrt(dx2 * dx2 + dy2 * dy2); //the distance2 between those center points
     if (distance2 < meatball.imgHeight / 2 + pRectHeight / 2) {
-      score++;
-      coins.splice(i, 1);
+      if (!gameOver) {
+        score++;
+        coins.splice(i, 1);
+      }
     }
 
     if (twoPlayers) {
@@ -794,8 +813,10 @@ function collision(player, player2, log, meatball, food) {
         p2RectY + p2RectHeight / 2 - (meatball.y + meatball.imgHeight / 2);
       const distance2_2 = Math.sqrt(dx2_2 * dx2_2 + dy2_2 * dy2_2); //the distance2 between those center points
       if (distance2_2 < meatball.imgHeight / 2 + p2RectHeight / 2) {
-        score++;
-        coins.splice(i, 1);
+        if (!gameOver) {
+          score++;
+          coins.splice(i, 1);
+        }
       }
     }
   });
@@ -909,7 +930,6 @@ function draw() {
       food.draw();
       food.update();
     });
-
     collision(player, player2, logs, coins, minusCoins); // Check collision
   } else if (gameOver === true || screen === "result screen") {
     resultScreen();
