@@ -12,8 +12,11 @@ let meatballsGIF;
 let gifX = 0;
 let gifY = -30;
 let img;
-let button;
-let button2;
+let button1Hover = false;
+let button2Hover = false;
+let buttonBackHover = false;
+let buttonQuitHover = false;
+let buttonPlayAgainHover = false;
 let cloudX = 0;
 let cloudY = 0;
 
@@ -41,11 +44,10 @@ let meatball;
 let coins = [];
 let score = 0;
 let currentScore;
-//let scoreResult;
 let scores = [];
-let firstPlace = 0;
-let secondPlace = 0;
-let thirdPlace = 0;
+//let firstPlace = 0;
+//let secondPlace = 0;
+//let thirdPlace = 0;
 let timer = 1; //for time when meatball touches the ground
 let dx2;
 let dy2;
@@ -95,22 +97,26 @@ function setup() {
   canvas.parent("canvasForHTML");
   frameRate(30);
   startScreen();
-  textFont("Times New Roman");
+  textFont("verdana");
+  //reload game
   reloadGameScreen();
 
   //get highscores from localstorage
   getHighscores();
 
   //Start Game Button
-  button = createButton("Start Game");
+  /*button = createButton("Start Game");
+  button.parent("startButton");
   button.position(canvasWidth * 0.2833, canvasHeight * 0.725);
   button.size(110, 34);
   button.mousePressed(gameScreen);
   //Controls Button
   button2 = createButton("Controls");
+  button.parent("controlsButton");
+
   button2.position(canvasWidth * 0.533, canvasHeight * 0.725);
   button2.size(110, 34);
-  button2.mousePressed(controlScreen);
+  button2.mousePressed(controlScreen);*/
 }
 
 //How to be able to press multiple keys at the same time, got help from: https://chatgpt.com/?oai-dm=1
@@ -122,32 +128,38 @@ function keyReleased() {
   keys[keyCode] = false; // When a key is released, set its value in the keys object to false
 }
 
-function clouds(x, y) {
-  //CLOUDS
-  push();
-  translate(cloudX, cloudY);
-  fill("rgba(255, 255, 255, 0.75)");
-  noStroke();
-  beginShape();
-  vertex(x + 50, y + 60);
-  bezierVertex(x + 50, y + 60, x + 65, y + 35, x + 100, y + 55);
-  bezierVertex(x + 100, y + 55, x + 120, y + 45, x + 140, y + 65);
-  bezierVertex(x + 140, y + 65, x + 175, y + 80, x + 150, y + 100);
-  bezierVertex(x + 120, y + 110, x + 140, y + 110, x + 90, y + 110);
-  bezierVertex(x + 90, y + 110, x + 45, y + 120, x + 40, y + 90);
-  bezierVertex(x + 40, y + 90, x + 20, y + 70, x + 50, y + 60);
-  endShape();
-
-  pop();
-}
-
 function startScreen() {
   clear();
   background(startimg);
   screen = "start screen";
   image(meatballsGIF, gifX - 30, gifY, canvasWidth + 50, canvasHeight + 50);
-}
 
+  //buttons
+  push();
+  fill("rgb(172, 179, 215)");
+  noStroke();
+  push();
+  if (button1Hover) {
+    stroke(0, 0, 0);
+    strokeWeight(1);
+  }
+  rect(canvasWidth * 0.2833, canvasHeight * 0.725, 110, 34);
+  pop();
+  push();
+  if (button2Hover) {
+    stroke(0, 0, 0);
+    strokeWeight(1);
+  }
+  rect(canvasWidth * 0.533, canvasHeight * 0.725, 110, 34);
+  pop();
+  fill(0);
+  textSize(14);
+  textAlign(CENTER);
+  text("Start Game", canvasWidth * 0.375, canvasHeight * 0.76);
+  text("Controls", canvasWidth * 0.62, canvasHeight * 0.76);
+
+  pop();
+}
 function controlScreen() {
   clear();
   background(controlimg);
@@ -167,9 +179,15 @@ function controlScreen() {
   push();
   noStroke();
   fill(216, 225, 250);
+  push();
+  if (buttonBackHover) {
+    stroke(0, 0, 0);
+    strokeWeight(1);
+  }
   rect(26, 30, 80, 30);
+  pop();
   fill("black");
-  textSize(18);
+  textSize(14);
   text("back", 50, 50);
   pop();
 
@@ -182,124 +200,13 @@ function controlScreen() {
   push();
   fill(0);
   textSize(14);
-  textFont("verdana");
   text("one player", 183, 320);
   text("two players", 351, 320);
   pop();
 
-  button.remove();
-  button2.remove();
+  //button.remove();
+  //button2.remove();
 }
-
-function gameScreen() {
-  clear();
-  screen = "game screen";
-  background(backgroundimg);
-  button.remove();
-  button2.remove();
-
-  //SCORE
-  push();
-  textSize(16);
-  fill(0);
-  text("SCORE: " + score, 25, 37);
-  pop();
-
-  //PAUSE BUTTON
-  push();
-  noStroke();
-  fill(200, 200, 250);
-  ellipse(555, 35, 30, 30);
-  fill("black");
-  pop();
-  if (!pauseGame) {
-    push();
-    noStroke();
-    fill("white");
-    rect(550, 27, 3, 15);
-    rect(557, 27, 3, 15);
-    pop();
-  } else {
-    push();
-    stroke("white");
-    strokeWeight(2.2);
-    line(551, 27, 563, 35);
-    line(563, 35, 551, 43);
-    line(551, 43, 551, 27);
-    pop();
-  }
-}
-
-//get highscore from localstorage
-function getHighscores() {
-  const scoresFromLocalStorage = localStorage.getItem("highscores");
-  if (scoresFromLocalStorage) {
-    //if we get the item from localstorage, we want to convert the item in scores[] that now are a string back to an array
-    scores = JSON.parse(scoresFromLocalStorage);
-  } else {
-    scores = [];
-  }
-}
-
-//update scores in localstorage(scoreboard)
-function updateHighScores() {
-  //let currentScore = score;
-
-  scores.push(score);
-  scores = [...new Set(scores)];
-  /*scores.sort(function (a, b) {
-    return b.score - a.score;
-  });*/
-  scores.sort((a, b) => b - a);
-  if (scores.length > 3) {
-    //scores.pop(); //to only keep 3 scores in the array
-    scores = scores.slice(0, 3);
-  }
-  localStorage.setItem("highscores", JSON.stringify(scores));
-}
-
-function resultScreen() {
-  clear();
-  screen = "result screen";
-  //noLoop();
-  //let currentScore = score;
-  background(resultimg);
-
-  //PLAY AGAIN BUTTON
-  push();
-  textSize(18);
-  textAlign(CENTER);
-  fill(0);
-  text("Play Again", canvasWidth / 2, 540);
-  //BACK TO START BUTTON
-  noStroke();
-  fill(210, 210, 250);
-  rect(26, 30, 80, 30);
-  fill("black");
-  textSize(18);
-  text("quit", 65, 50);
-  pop();
-
-  //SCORE
-  push();
-  textSize(18);
-  textStyle(BOLD);
-  textAlign(CENTER);
-  fill(0);
-  text("SCORE: " + score, canvasWidth / 2, 255);
-  console.log(score);
-  // Display top 3 scores
-  for (let i = 0; i < 3; i++) {
-    text(scores[i] + "p", canvasWidth / 2 + 45, 343 + i * 56);
-  }
-  pop();
-
-  updateHighScores();
-
-  button.remove();
-  button2.remove();
-}
-
 class Player {
   //sprite code, learnt from this tutorial https://www.youtube.com/watch?v=7JtLHJbm0kA&t=1675s
   constructor(gameWidth, gameHeight) {
@@ -648,6 +555,25 @@ function Rotten(gameWidth, gameHeight) {
   };
 }
 
+function clouds(x, y) {
+  //CLOUDS
+  push();
+  translate(cloudX, cloudY);
+  fill("rgba(255, 255, 255, 0.75)");
+  noStroke();
+  beginShape();
+  vertex(x + 50, y + 60);
+  bezierVertex(x + 50, y + 60, x + 65, y + 35, x + 100, y + 55);
+  bezierVertex(x + 100, y + 55, x + 120, y + 45, x + 140, y + 65);
+  bezierVertex(x + 140, y + 65, x + 175, y + 80, x + 150, y + 100);
+  bezierVertex(x + 120, y + 110, x + 140, y + 110, x + 90, y + 110);
+  bezierVertex(x + 90, y + 110, x + 45, y + 120, x + 40, y + 90);
+  bezierVertex(x + 40, y + 90, x + 20, y + 70, x + 50, y + 60);
+  endShape();
+
+  pop();
+}
+
 //reset game page inspiration: https://www.youtube.com/watch?v=lm8Y8TD4CTM
 function reloadGameScreen() {
   player = new Player(canvasWidth, canvasHeight); //creates player
@@ -655,29 +581,158 @@ function reloadGameScreen() {
   // Create logs and add them to the logs array
   logs = new Log(canvasWidth, canvasHeight);
 
+  timerSpeed = 1.0;
+  timer = 1;
   coins = [];
   coins.push(new Meatball(canvasWidth, canvasHeight));
   meatballTimer = 0;
+  meatballInterval = 1000;
+  //randomMeatballInterval = Math.random() * 1000 + 500;
 
   minusCoins = [];
+  //food = [];
   minusCoins.push(new Rotten(canvasWidth, canvasHeight, food[r]));
   rottenTimer = 0;
+  rottenInterval = 1000 * 10;
+  //randomRottenInterval = Math.random() * 1000 + 500;
+  //r = Math.floor(Math.random() * food.length);
   //pauseGame = !pauseGame;
   score = 0;
 }
 
-function mousePressed() {
-  /*if (
+function gameScreen() {
+  clear();
+  screen = "game screen";
+  background(backgroundimg);
+  // button.remove();
+  //button2.remove();
+
+  //SCORE
+  push();
+  textSize(16);
+  fill(0);
+  text("SCORE: " + score, 25, 37);
+  pop();
+
+  //PAUSE BUTTON
+  /*push();
+  noStroke();
+  fill(200, 200, 250);
+  ellipse(555, 35, 30, 30);
+  fill("black");
+  pop();
+  if (!pauseGame) {
+    push();
+    noStroke();
+    fill("white");
+    rect(550, 27, 3, 15);
+    rect(557, 27, 3, 15);
+    pop();
+  } else {
+    push();
+    stroke("white");
+    strokeWeight(2.2);
+    line(551, 27, 563, 35);
+    line(563, 35, 551, 43);
+    line(551, 43, 551, 27);
+    pop();
+  }*/
+}
+
+//LOCALSTORAGE SCOREBOARD. got help to figure out how to move forward when i felt stuck with trying without getting it to work: https://chatgpt.com/c/bc028cf4-1e03-4fe9-a7bd-cbac64f67395
+//get highscore from localstorage
+function getHighscores() {
+  const scoresFromLocalStorage = localStorage.getItem("highscores");
+  if (scoresFromLocalStorage) {
+    //if we get the item from localstorage, we want to convert the item in scores[] that now are a string back to an array
+    scores = JSON.parse(scoresFromLocalStorage);
+  } else {
+    scores = [];
+  }
+}
+//update scores in localstorage(scoreboard)
+function updateHighScores() {
+  //let currentScore = score;
+  scores.push(score);
+  scores = [...new Set(scores)];
+  /*scores.sort(function (a, b) {
+    return b.score - a.score;
+  });*/
+  scores.sort((a, b) => b - a);
+  if (scores.length > 3) {
+    //scores.pop(); //to only keep 3 scores in the array
+    scores = scores.slice(0, 3);
+  }
+  localStorage.setItem("highscores", JSON.stringify(scores));
+}
+
+function resultScreen() {
+  clear();
+  screen = "result screen";
+  background(resultimg);
+
+  //PLAY AGAIN BUTTON
+  push();
+  noStroke();
+  fill(218, 203, 233);
+  push();
+  if (buttonPlayAgainHover) {
+    stroke(0, 0, 0);
+    strokeWeight(1);
+  }
+  rect(201, 518, 198, 35);
+  pop();
+  textSize(16);
+  textAlign(CENTER);
+  fill(0);
+  text("Play Again", canvasWidth / 2, 540);
+  //QUIT BUTTON
+  noStroke();
+  fill(210, 210, 250);
+  push();
+  if (buttonQuitHover) {
+    stroke(0, 0, 0);
+    strokeWeight(1);
+  }
+  rect(26, 30, 80, 30);
+  pop();
+  fill("black");
+  textSize(14);
+  text("quit", 65, 50);
+  pop();
+
+  //SCORE
+  push();
+  textSize(16);
+  textStyle(BOLD);
+  textAlign(CENTER);
+  fill(0);
+  text("SCORE: " + score, canvasWidth / 2, 255);
+  console.log(score);
+  // Display top 3 scores
+  for (let i = 0; i < 3; i++) {
+    text(scores[i] + "p", canvasWidth / 2 + 45, 343 + i * 56);
+  }
+  pop();
+
+  updateHighScores();
+}
+
+function mouseMoved() {
+  //hover on start button
+  if (
     screen === "start screen" &&
     mouseX > 170 &&
     mouseX < 280 &&
     mouseY > 435 &&
     mouseY < 470
   ) {
-    screen = "game screen"; // Run game again
-    reloadGameScreen();
-    gameOver = false;
+    button1Hover = true;
+  } else {
+    button1Hover = false;
   }
+
+  //hover on controls button
   if (
     screen === "start screen" &&
     mouseX > 320 &&
@@ -685,9 +740,72 @@ function mousePressed() {
     mouseY > 435 &&
     mouseY < 470
   ) {
-    screen = "controls screen";
+    button2Hover = true;
+  } else {
+    button2Hover = false;
+  }
+
+  //hover on back to start button
+  if (
+    screen === "controls screen" &&
+    mouseX > 26 &&
+    mouseX < 106 &&
+    mouseY > 30 &&
+    mouseY < 60
+  ) {
+    buttonBackHover = true;
+  } else {
+    buttonBackHover = false;
+  }
+
+  //hover on quit button
+  if (
+    screen === "result screen" &&
+    mouseX > 26 &&
+    mouseX < 106 &&
+    mouseY > 30 &&
+    mouseY < 60
+  ) {
+    buttonQuitHover = true;
+  } else {
+    buttonQuitHover = false;
+  }
+
+  //hover on play again button
+  if (
+    screen === "result screen" &&
+    mouseX > 200 &&
+    mouseX < 400 &&
+    mouseY > 518 &&
+    mouseY < 550
+  ) {
+    buttonPlayAgainHover = true;
+  } else {
+    buttonPlayAgainHover = false;
+  }
+}
+
+function mousePressed() {
+  //start game button
+  if (
+    screen === "start screen" &&
+    mouseX > 170 &&
+    mouseX < 280 &&
+    mouseY > 435 &&
+    mouseY < 470
+  ) {
+    gameScreen();
+  }
+  //go to controls button
+  if (
+    screen === "start screen" &&
+    mouseX > 320 &&
+    mouseX < 430 &&
+    mouseY > 435 &&
+    mouseY < 470
+  ) {
     controlScreen();
-  }*/
+  }
 
   if (screen === "controls screen") {
     if (mouseX > 170 && mouseX < 270 && mouseY > 300 && mouseY < 330) {
@@ -711,14 +829,14 @@ function mousePressed() {
 
   if (
     screen === "result screen" &&
-    mouseX > 250 &&
-    mouseX < 350 &&
-    mouseY > 520 &&
-    mouseY < 545
+    mouseX > 200 &&
+    mouseX < 400 &&
+    mouseY > 518 &&
+    mouseY < 550
   ) {
     screen = "game screen"; // Run game again
-    reloadGameScreen();
     gameOver = false;
+    reloadGameScreen();
   }
   if (
     screen === "result screen" &&
@@ -729,11 +847,10 @@ function mousePressed() {
   ) {
     screen = "start screen"; // Go back to the start screen
     setup();
-    reloadGameScreen();
     gameOver = false;
     score = 0;
   }
-  if (
+  /*if (
     screen === "game screen" &&
     mouseX > 540 &&
     mouseX < 570 &&
@@ -741,7 +858,7 @@ function mousePressed() {
     mouseY < 50
   ) {
     pauseGame = !pauseGame; // Pause game while playing
-  }
+  }*/
 }
 
 function collision(player, player2, log, meatball, food) {
@@ -854,7 +971,8 @@ function collision(player, player2, log, meatball, food) {
     }
   });
 }
-
+//got help with timerSpeed code from https://chatgpt.com/c/38c0759d-0e54-4e36-9bcd-6c0aabe86a71
+let timerSpeed = 1.0;
 function animate() {
   //meatball
   if (score % 5 === 0) {
@@ -887,8 +1005,6 @@ function animate() {
   }
 }
 
-//got help with timerSpeed code from https://chatgpt.com/c/38c0759d-0e54-4e36-9bcd-6c0aabe86a71
-let timerSpeed = 1.0;
 let cloudSpeed = 0.3;
 let cloudSpeed1 = -0.9;
 let cloudSpeed2 = -0.6;

@@ -1,11 +1,12 @@
 body {
   display: flex;
   justify-content: center;
-  padding-top: 60px;
+  padding-top: 4em;
   margin: 0;
   width: 100%;
-}
+} /*
 ul {
+
   display: grid;
   position: absolute;
   align-items: center;
@@ -28,14 +29,15 @@ button {
   background-color: rgb(172, 179, 215);
   border-color: transparent;
   cursor: pointer;
-  margin-left: 287px;
-  margin-top: 60px;
-  /*text*/
+  margin-top: 3.1em;
+  margin-left: 25em;
+  
   font-family: "Times New Roman", Times, serif;
   font-size: 18px;
   color: rgb(36, 36, 36);
-}
+}*/
 
+/*
 .addHighscore {
   display: flex;
   position: absolute;
@@ -45,4 +47,4 @@ button {
 .add {
   margin-left: 0;
   margin-top: 0;
-}
+}*/
