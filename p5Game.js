@@ -103,11 +103,10 @@ function setup() {
 
 //How to be able to press multiple keys at the same time, got help from: https://chatgpt.com/?oai-dm=1
 function keyPressed() {
-  keys[keyCode] = true; // When a key is pressed, set its value in the keys object to true
+  keys[keyCode] = true; // When a key is pressed, the value in the keys object is set to true
 }
-
 function keyReleased() {
-  keys[keyCode] = false; // When a key is released, set its value in the keys object to false
+  keys[keyCode] = false; // When a key is released, the value in the keys object is set to false
 }
 
 function startScreen() {
@@ -185,9 +184,6 @@ function controlScreen() {
   text("one player", 183, 320);
   text("two players", 351, 320);
   pop();
-
-  //button.remove();
-  //button2.remove();
 }
 class Player {
   //sprite code, learnt from this tutorial https://www.youtube.com/watch?v=7JtLHJbm0kA&t=1675s
@@ -522,6 +518,7 @@ function Rotten(gameWidth, gameHeight) {
   this.imgHeight = 50;
 
   this.draw = function () {
+    //rectangle around rotten food for collision
     /* push();
     stroke(50);
     fill("rgba(0,0,0,0)");
@@ -552,7 +549,6 @@ function clouds(x, y) {
   bezierVertex(x + 90, y + 110, x + 45, y + 120, x + 40, y + 90);
   bezierVertex(x + 40, y + 90, x + 20, y + 70, x + 50, y + 60);
   endShape();
-
   pop();
 }
 
@@ -560,8 +556,6 @@ function clouds(x, y) {
 function reloadGameScreen() {
   player = new Player(canvasWidth, canvasHeight); //creates player
   player2 = new Player2(canvasWidth, canvasHeight);
-  // Create logs and add them to the logs array
-  logs = new Log(canvasWidth, canvasHeight);
 
   timerSpeed = 1.0;
   timer = 1;
@@ -569,16 +563,13 @@ function reloadGameScreen() {
   coins.push(new Meatball(canvasWidth, canvasHeight));
   meatballTimer = 0;
   meatballInterval = 1000;
-  //randomMeatballInterval = Math.random() * 1000 + 500;
 
   minusCoins = [];
   //food = [];
   minusCoins.push(new Rotten(canvasWidth, canvasHeight, food[r]));
   rottenTimer = 0;
   rottenInterval = 1000 * 10;
-  //randomRottenInterval = Math.random() * 1000 + 500;
-  //r = Math.floor(Math.random() * food.length);
-  //pauseGame = !pauseGame;
+
   score = 0;
 }
 
@@ -586,8 +577,6 @@ function gameScreen() {
   clear();
   screen = "game screen";
   background(backgroundimg);
-  // button.remove();
-  //button2.remove();
 
   //SCORE
   push();
@@ -595,30 +584,6 @@ function gameScreen() {
   fill(0);
   text("SCORE: " + score, 25, 37);
   pop();
-
-  //PAUSE BUTTON
-  /*push();
-  noStroke();
-  fill(200, 200, 250);
-  ellipse(555, 35, 30, 30);
-  fill("black");
-  pop();
-  if (!pauseGame) {
-    push();
-    noStroke();
-    fill("white");
-    rect(550, 27, 3, 15);
-    rect(557, 27, 3, 15);
-    pop();
-  } else {
-    push();
-    stroke("white");
-    strokeWeight(2.2);
-    line(551, 27, 563, 35);
-    line(563, 35, 551, 43);
-    line(551, 43, 551, 27);
-    pop();
-  }*/
 }
 
 //get highscore from localstorage
@@ -636,9 +601,6 @@ function updateHighScores() {
   //let currentScore = score;
   scores.push(score);
   scores = [...new Set(scores)]; //this one I got help from: https://chatgpt.com/c/bc028cf4-1e03-4fe9-a7bd-cbac64f67395
-  /*scores.sort(function (a, b) {
-    return b.score - a.score;
-  });*/
   scores.sort((a, b) => b - a);
   if (scores.length > 3) {
     scores = scores.slice(0, 3); //to only keep 3 scores in the array
@@ -705,7 +667,6 @@ function resultScreen() {
       }
     }
   }
-
   pop();
 
   updateHighScores();
@@ -843,15 +804,6 @@ function mousePressed() {
     gameOver = false;
     score = 0;
   }
-  /*if (
-    screen === "game screen" &&
-    mouseX > 540 &&
-    mouseX < 570 &&
-    mouseY > 20 &&
-    mouseY < 50
-  ) {
-    pauseGame = !pauseGame; // Pause game while playing
-  }*/
 }
 
 function collision(player, player2, log, meatball, food) {
@@ -873,12 +825,15 @@ function collision(player, player2, log, meatball, food) {
   let lRectWidth = log.imgWidth - 230;
   let lRectHeight = log.imgHeight - 140;
 
+  //rectangle around player
   /*push();
   stroke(50);
   fill("rgba(0,0,0,0)");
   rect(pRectX, pRectY, pRectWidth, pRectHeight);  stroke(50);
   fill("rgba(0,0,0,0)");
   rect(p2RectX, p2RectY, p2RectWidth, p2RectHeight);
+
+  //rectangle around log
   stroke(50);
   fill("rgba(0,0,0,0)");
   rect(lRectX, lRectY, lRectWidth, lRectHeight);
