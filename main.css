@@ -1,7 +1,8 @@
-body {
+#canvasForHTML {
   display: flex;
   justify-content: center;
-  padding-top: 4em;
+  align-items: center;
   margin: 0;
   width: 100%;
+  height: 43em;
 }

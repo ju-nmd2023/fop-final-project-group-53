@@ -2,16 +2,17 @@ let canvas;
 let canvasWidth = 600;
 let canvasHeight = 600;
 let gameOver = false;
+let gameHeight;
+let gameWidth;
+
 let backgroundimg;
 let startimg;
 let controlimg;
-let twoPlayerImg;
-let onePlayer;
-let twoPlayers;
+let resultimg;
+
 let meatballsGIF;
 let gifX = 0;
 let gifY = -30;
-let img;
 let button1Hover = false;
 let button2Hover = false;
 let buttonBackHover = false;
@@ -20,24 +21,25 @@ let buttonPlayAgainHover = false;
 let cloudX = 0;
 let cloudY = 0;
 
-let gameHeight;
-let gameWidth;
+let img;
+let twoPlayerImg;
+let onePlayer;
+let twoPlayers;
 let pauseGame;
 let player;
 let player2;
 let keys = {};
+let playerRadius;
 
-let log;
+let logs;
 let dx1;
 let dy1;
 let distance1;
 let dx1_2;
 let dy1_2;
 let distance1_2;
-let playerRadius;
 let logRadius;
 let totalRadius;
-let logs;
 
 let meatballimg;
 let meatball;
@@ -56,8 +58,8 @@ let meatballTimer = 0;
 let meatballInterval = 1000;
 let randomMeatballInterval = Math.random() * 1000 + 500;
 
-/*bubbles*/ let minusCoins = [];
-/*flowers*/ let food = [];
+let minusCoins = [];
+let food = [];
 let rottenFood;
 let rottenTimer = 0;
 let rottenInterval = 1000 * 10;
@@ -80,12 +82,13 @@ function preload() {
   steve = loadImage("images/steve_sprite.png");
   meatballimg = loadImage("images/meatball.png");
   for (let i = 0; i < 5; i++) {
-    food[i] = loadImage("foodimages/food" + i + ".png"); //learnt from https://www.youtube.com/watch?v=FVYGyaxG4To
+    food[i] = loadImage("foodimages/food" + i + ".png"); //learnt how to write this from https://www.youtube.com/watch?v=FVYGyaxG4To
   }
 
   //for control screen
   controlimg = loadImage("images/controlscreen_image.png");
   twoPlayerImg = loadImage("images/controlscreen_image_2players.png");
+  //for result screen
   resultimg = loadImage("images/resultscreen_image.png");
 }
 
@@ -103,10 +106,11 @@ function setup() {
 
 //How to be able to press multiple keys at the same time, got help from: https://chatgpt.com/?oai-dm=1
 function keyPressed() {
-  keys[keyCode] = true; // When a key is pressed, the value in the keys object is set to true
+  keys[keyCode] = true; // When a key is pressed, set its value in the keys object to true
 }
+
 function keyReleased() {
-  keys[keyCode] = false; // When a key is released, the value in the keys object is set to false
+  keys[keyCode] = false; // When a key is released, set its value in the keys object to false
 }
 
 function startScreen() {
@@ -203,7 +207,7 @@ class Player {
     this.speed = 0.4;
     this.vy = 1;
     this.weight = 1;
-    this.previousDirection = null;
+    this.previousDirection;
   }
 
   draw() {
@@ -312,7 +316,7 @@ class Player2 {
     this.speed = 0.4;
     this.vy = 1;
     this.weight = 1;
-    this.previousDirection = null;
+    this.previousDirection;
   }
 
   draw() {
@@ -430,7 +434,6 @@ class Log {
     this.logTimer = 0;
     this.logInterval = 8000;
     this.randomLogInterval = Math.random() * 1000 + 500;
-    //this.markedForDeletion = false;
   }
 
   draw(context) {
@@ -480,6 +483,7 @@ class Meatball {
   }
 
   draw() {
+    //rectangle around meatball for collision
     /* push();
     stroke(50);
     fill("rgba(0,0,0,0)");
@@ -556,6 +560,8 @@ function clouds(x, y) {
 function reloadGameScreen() {
   player = new Player(canvasWidth, canvasHeight); //creates player
   player2 = new Player2(canvasWidth, canvasHeight);
+  // Create logs and add them to the logs array
+  logs = new Log(canvasWidth, canvasHeight);
 
   timerSpeed = 1.0;
   timer = 1;
@@ -565,7 +571,6 @@ function reloadGameScreen() {
   meatballInterval = 1000;
 
   minusCoins = [];
-  //food = [];
   minusCoins.push(new Rotten(canvasWidth, canvasHeight, food[r]));
   rottenTimer = 0;
   rottenInterval = 1000 * 10;
@@ -598,7 +603,6 @@ function getHighscores() {
 }
 //update scores in localstorage(scoreboard)
 function updateHighScores() {
-  //let currentScore = score;
   scores.push(score);
   scores = [...new Set(scores)]; //this one I got help from: https://chatgpt.com/c/bc028cf4-1e03-4fe9-a7bd-cbac64f67395
   scores.sort((a, b) => b - a);
@@ -629,7 +633,9 @@ function resultScreen() {
   textAlign(CENTER);
   fill(0);
   text("Play Again", canvasWidth / 2, 540);
+  pop();
   //QUIT BUTTON
+  push();
   noStroke();
   fill(210, 210, 250);
   push();
@@ -641,9 +647,9 @@ function resultScreen() {
   pop();
   fill("black");
   textSize(14);
+  textAlign(CENTER);
   text("quit", 65, 50);
   pop();
-
   //SCORE
   push();
   textSize(16);
@@ -651,9 +657,25 @@ function resultScreen() {
   textAlign(CENTER);
   fill(0);
   text("SCORE: " + score, canvasWidth / 2, 255);
+  pop();
+
   // Display top 3 scores
   for (let i = 0; i < 3; i++) {
+    push();
+    textSize(16);
+    textAlign(CENTER);
+    fill(0);
+    //contrast on the players score on scoreboard
+    if (score === scores[i]) {
+      if (scores[0]) {
+        textStyle(BOLD);
+      }
+    } else if (score < scores) {
+      textStyle(NORMAL);
+    }
+    //writes out the top 3 scores on scoreboard
     text(scores[i] + "p", canvasWidth / 2 + 45, 343 + i * 56);
+    pop();
     // new highscore
     if (i < 1) {
       if (score >= scores[0]) {
@@ -667,7 +689,6 @@ function resultScreen() {
       }
     }
   }
-  pop();
 
   updateHighScores();
 }
