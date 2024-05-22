@@ -45,9 +45,6 @@ let coins = [];
 let score = 0;
 let currentScore;
 let scores = [];
-//let firstPlace = 0;
-//let secondPlace = 0;
-//let thirdPlace = 0;
 let timer = 1; //for time when meatball touches the ground
 let dx2;
 let dy2;
@@ -100,23 +97,8 @@ function setup() {
   textFont("verdana");
   //reload game
   reloadGameScreen();
-
   //get highscores from localstorage
   getHighscores();
-
-  //Start Game Button
-  /*button = createButton("Start Game");
-  button.parent("startButton");
-  button.position(canvasWidth * 0.2833, canvasHeight * 0.725);
-  button.size(110, 34);
-  button.mousePressed(gameScreen);
-  //Controls Button
-  button2 = createButton("Controls");
-  button.parent("controlsButton");
-
-  button2.position(canvasWidth * 0.533, canvasHeight * 0.725);
-  button2.size(110, 34);
-  button2.mousePressed(controlScreen);*/
 }
 
 //How to be able to press multiple keys at the same time, got help from: https://chatgpt.com/?oai-dm=1
@@ -639,7 +621,6 @@ function gameScreen() {
   }*/
 }
 
-//LOCALSTORAGE SCOREBOARD. got help to figure out how to move forward when i felt stuck with trying without getting it to work: https://chatgpt.com/c/bc028cf4-1e03-4fe9-a7bd-cbac64f67395
 //get highscore from localstorage
 function getHighscores() {
   const scoresFromLocalStorage = localStorage.getItem("highscores");
@@ -654,15 +635,15 @@ function getHighscores() {
 function updateHighScores() {
   //let currentScore = score;
   scores.push(score);
-  scores = [...new Set(scores)];
+  scores = [...new Set(scores)]; //this one I got help from: https://chatgpt.com/c/bc028cf4-1e03-4fe9-a7bd-cbac64f67395
   /*scores.sort(function (a, b) {
     return b.score - a.score;
   });*/
   scores.sort((a, b) => b - a);
   if (scores.length > 3) {
-    //scores.pop(); //to only keep 3 scores in the array
-    scores = scores.slice(0, 3);
+    scores = scores.slice(0, 3); //to only keep 3 scores in the array
   }
+
   localStorage.setItem("highscores", JSON.stringify(scores));
 }
 
@@ -708,11 +689,23 @@ function resultScreen() {
   textAlign(CENTER);
   fill(0);
   text("SCORE: " + score, canvasWidth / 2, 255);
-  console.log(score);
   // Display top 3 scores
   for (let i = 0; i < 3; i++) {
     text(scores[i] + "p", canvasWidth / 2 + 45, 343 + i * 56);
+    // new highscore
+    if (i < 1) {
+      if (score >= scores[0]) {
+        push();
+        textSize(22);
+        textStyle(NORMAL);
+        textAlign(CENTER);
+        fill("gold");
+        text("You Are The Best", canvasWidth / 2, canvasHeight / 2 - 2);
+        pop();
+      }
+    }
   }
+
   pop();
 
   updateHighScores();
