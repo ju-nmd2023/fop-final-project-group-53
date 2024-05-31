@@ -104,7 +104,7 @@ function setup() {
   getHighscores();
 }
 
-//How to be able to press multiple keys at the same time, got help from: https://chatgpt.com/?oai-dm=1
+//How to be able to press multiple keys at the same time, got help from: https://chatgpt.com/c/b45ece3d-ce26-4d85-aa00-977030eda267
 function keyPressed() {
   keys[keyCode] = true; // When a key is pressed, set its value in the keys object to true
 }
